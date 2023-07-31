@@ -11,9 +11,43 @@ class Offsets(Enum):
     REGION_CODE = 0x7fff
     ROM_SIZE = 0x7fff
 
+class Lengths(Enum):
+    TMR_SEGA = 8
+    RESERVED_SPACE = 2
+    CHECKSUM = 2
+    PRODUCT_CODE = 2.5
+    VERSION = 0.5
+    REGION_CODE = 0.5
+    ROM_SIZE = 0.5
+
+class FieldValidator:
+
+    def __init__(self, offset, size, expected):
+        self._offset = offset
+        self._size = size
+        self._expected = expected
+
+    def check(self, rom_buffer):
+        data = rom_buffer[self._offset:(self._offset + self._size)]
+
+        assert self._expected == data
+
+class TmrSegaValidator(FieldValidator):
+
+    def __init__(self):
+        FieldValidator.__init__(self, Offsets.TMR_SEGA.value,
+                                Lengths.TMR_SEGA.value, b'TMR SEGA')
+
+_VALIDATORS = [
+    TmrSegaValidator()
+]
+
 def main(rom_file):
     with open(rom_file, 'rb') as f:
-        pass
+        data = f.read()
+
+        for field in _VALIDATORS:
+            field.check(data)
 
 def parse_args():
     parser = ArgumentParser(prog=argv[0])
