@@ -22,7 +22,7 @@ class Lengths(Enum):
 
 class FieldValidator:
 
-    def __init__(self, offset, size, expected=None):
+    def __init__(self, offset, size, expected):
         self._offset = offset.value
         self._size = size.value
         self._expected = expected
@@ -42,13 +42,14 @@ class ReservedSpaceValidator(FieldValidator):
 
     def __init__(self):
         FieldValidator.__init__(self, Offsets.RESERVED_SPACE,
-                                Lengths.RESERVED_SPACE)
+                                Lengths.RESERVED_SPACE,
+                                [b'\x00\x00', b'\xff\xff', b'\x20\x20'])
 
     def check(self, rom_buffer):
         data = rom_buffer[self._offset:(self._offset + self._size)]
 
-        assert (data == b'\x00\x00') or (data == b'\xff\xff') or \
-                (data == b'\x20\x20')
+        assert (data == self._expected[0]) or (data == self._expected[1]) or \
+                (data == self._expected[2])
 
 _VALIDATORS = [
     TmrSegaValidator(),
