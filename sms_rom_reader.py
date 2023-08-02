@@ -15,16 +15,16 @@ class Lengths(Enum):
     TMR_SEGA = 8
     RESERVED_SPACE = 2
     CHECKSUM = 2
-    PRODUCT_CODE = 2.5
-    VERSION = 0.5
-    REGION_CODE = 0.5
-    ROM_SIZE = 0.5
+    PRODUCT_CODE = 3 # 2.5 bytes
+    VERSION = 1 # 0.5 bytes
+    REGION_CODE = 1 # 0.5 bytes
+    ROM_SIZE = 1 # 0.5 bytes
 
 class FieldValidator:
 
-    def __init__(self, offset, size, expected):
-        self._offset = offset
-        self._size = size
+    def __init__(self, offset, size, expected=None):
+        self._offset = offset.value
+        self._size = size.value
         self._expected = expected
 
     def check(self, rom_buffer):
@@ -35,11 +35,24 @@ class FieldValidator:
 class TmrSegaValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, Offsets.TMR_SEGA.value,
-                                Lengths.TMR_SEGA.value, b'TMR SEGA')
+        FieldValidator.__init__(self, Offsets.TMR_SEGA, Lengths.TMR_SEGA,
+                                b'TMR SEGA')
+
+class ReservedSpaceValidator(FieldValidator):
+
+    def __init__(self):
+        FieldValidator.__init__(self, Offsets.RESERVED_SPACE,
+                                Lengths.RESERVED_SPACE)
+
+    def check(self, rom_buffer):
+        data = rom_buffer[self._offset:(self._offset + self._size)]
+
+        assert (data == b'\x00\x00') or (data == b'\xff\xff') or \
+                (data == b'\x20\x20')
 
 _VALIDATORS = [
-    TmrSegaValidator()
+    TmrSegaValidator(),
+    ReservedSpaceValidator()
 ]
 
 def main(rom_file):
