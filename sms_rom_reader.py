@@ -69,9 +69,18 @@ class ReservedSpaceValidator(FieldValidator):
         assert (data == self._expected[0]) or (data == self._expected[1]) or \
                 (data == self._expected[2])
 
+class ChecksumValidator(FieldValidator):
+
+    def __init__(self):
+        checksum = 0
+
+        FieldValidator.__init__(self, Offsets.CHECKSUM, Lengths.CHECKSUM,
+                                checksum)
+
 _VALIDATORS = [
     TmrSegaValidator(),
-    ReservedSpaceValidator()
+    ReservedSpaceValidator(),
+    ChecksumValidator()
 ]
 
 def main(rom_file):
