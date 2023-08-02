@@ -1,6 +1,8 @@
 from argparse import ArgumentParser
+from colorama import Fore
 from enum import Enum
 from sys import argv
+from abc import ABC, abstractmethod
 
 class Offsets(Enum):
     TMR_SEGA = 0x7ff0
@@ -38,44 +40,69 @@ class Lengths(Enum):
     REGION_CODE = 1 # 0.5 bytes
     ROM_SIZE = 1 # 0.5 bytes
 
-class FieldValidator:
+def show_result(func):
+    def wrapper(self, rom_buffer):
+        try:
+            func(self, rom_buffer)
+            print('[' + Fore.GREEN + self._field_name + Fore.RESET + '] OK!')
+        except AssertionError:
+            print('[' + Fore.RED + self._field_name + Fore.RESET + '] ERROR!')
 
-    def __init__(self, offset, size, expected):
+    return wrapper
+
+class FieldValidator(ABC):
+
+    def __init__(self, name, offset, size, expected):
+        self._field_name = name
         self._offset = offset.value
         self._size = size.value
         self._expected = expected
 
+    @abstractmethod
+    def check(self, rom_buffer):
+        pass
+
+class TmrSegaValidator(FieldValidator):
+
+    def __init__(self):
+        FieldValidator.__init__(self, 'TMR SEGA', Offsets.TMR_SEGA,
+                                Lengths.TMR_SEGA, b'TMR SEGA')
+
+    @show_result
     def check(self, rom_buffer):
         data = rom_buffer[self._offset:(self._offset + self._size)]
 
         assert self._expected == data
 
-class TmrSegaValidator(FieldValidator):
-
-    def __init__(self):
-        FieldValidator.__init__(self, Offsets.TMR_SEGA, Lengths.TMR_SEGA,
-                                b'TMR SEGA')
-
 class ReservedSpaceValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, Offsets.RESERVED_SPACE,
+        FieldValidator.__init__(self, 'Reserved space', Offsets.RESERVED_SPACE,
                                 Lengths.RESERVED_SPACE,
                                 [b'\x00\x00', b'\xff\xff', b'\x20\x20'])
 
+    @show_result
     def check(self, rom_buffer):
         data = rom_buffer[self._offset:(self._offset + self._size)]
 
-        assert (data == self._expected[0]) or (data == self._expected[1]) or \
-                (data == self._expected[2])
+        assert (data == self._expected[0]) or (data == self._expected[1]) \
+                or (data == self._expected[2])
 
 class ChecksumValidator(FieldValidator):
 
     def __init__(self):
         checksum = 0
 
-        FieldValidator.__init__(self, Offsets.CHECKSUM, Lengths.CHECKSUM,
-                                checksum)
+        FieldValidator.__init__(self, 'Checksum', Offsets.CHECKSUM,
+                                Lengths.CHECKSUM, checksum)
+
+    @show_result
+    def check(self, rom_buffer):
+        assert 1 == 2
+
+    @staticmethod
+    def _calculate_checksum(rom_buffer):
+        pass
 
 _VALIDATORS = [
     TmrSegaValidator(),
@@ -87,8 +114,8 @@ def main(rom_file):
     with open(rom_file, 'rb') as f:
         data = f.read()
 
-        for field in _VALIDATORS:
-            field.check(data)
+        for val in _VALIDATORS:
+            val.check(data)
 
 def parse_args():
     parser = ArgumentParser(prog=argv[0])
