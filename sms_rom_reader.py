@@ -42,11 +42,10 @@ class Lengths(Enum):
 
 class FieldValidator(ABC):
 
-    def __init__(self, name, offset, size, expected):
+    def __init__(self, name, offset, size):
         self._field_name = name
         self._offset = offset.value
         self._size = size.value
-        self._expected = expected
 
     @abstractmethod
     def check(self, rom_buffer):
@@ -70,43 +69,45 @@ class TmrSegaValidator(FieldValidator):
 
     def __init__(self):
         FieldValidator.__init__(self, 'TMR SEGA', Offsets.TMR_SEGA,
-                                Lengths.TMR_SEGA, b'TMR SEGA')
+                                Lengths.TMR_SEGA)
 
     @FieldValidator.show_result
     def check(self, rom_buffer):
+        expected = b'TMR SEGA'
         data = rom_buffer[self._offset:(self._offset + self._size)]
 
-        assert self._expected == data
+        assert expected == data
 
 class ReservedSpaceValidator(FieldValidator):
 
     def __init__(self):
         FieldValidator.__init__(self, 'Reserved space', Offsets.RESERVED_SPACE,
-                                Lengths.RESERVED_SPACE,
-                                [b'\x00\x00', b'\xff\xff', b'\x20\x20'])
+                                Lengths.RESERVED_SPACE)
 
     @FieldValidator.show_result
     def check(self, rom_buffer):
+        expected = [b'\x00\x00', b'\xff\xff', b'\x20\x20']
         data = rom_buffer[self._offset:(self._offset + self._size)]
 
-        assert (data == self._expected[0]) or (data == self._expected[1]) \
-                or (data == self._expected[2])
+        assert (data == expected[0]) or (data == expected[1]) \
+                or (data == expected[2])
 
 class ChecksumValidator(FieldValidator):
 
     def __init__(self):
-        checksum = 0
-
         FieldValidator.__init__(self, 'Checksum', Offsets.CHECKSUM,
-                                Lengths.CHECKSUM, checksum)
+                                Lengths.CHECKSUM)
 
     @FieldValidator.show_result
     def check(self, rom_buffer):
-        assert 1 == 2
+        expected = self._calculate_checksum(rom_buffer)
+        data = rom_buffer[self._offset:(self._offset + self._size)]
+
+        assert data == expected
 
     @staticmethod
     def _calculate_checksum(rom_buffer):
-        pass
+        return 0 # TODO
 
 _VALIDATORS = [
     TmrSegaValidator(),
