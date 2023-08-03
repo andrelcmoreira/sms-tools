@@ -40,18 +40,6 @@ class Lengths(Enum):
     REGION_CODE = 1 # 0.5 bytes
     ROM_SIZE = 1 # 0.5 bytes
 
-def show_result(func):
-    def wrapper(self, rom_buffer):
-        try:
-            func(self, rom_buffer)
-            print('[' + Fore.GREEN + '   OK  ' + Fore.RESET + '] '
-                  + self.field_name)
-        except AssertionError:
-            print('[' + Fore.RED + ' ERROR ' + Fore.RESET + '] '
-                  + self.field_name)
-
-    return wrapper
-
 class FieldValidator(ABC):
 
     def __init__(self, name, offset, size, expected):
@@ -64,9 +52,19 @@ class FieldValidator(ABC):
     def check(self, rom_buffer):
         pass
 
-    @property
-    def field_name(self):
-        return self._field_name
+    @staticmethod
+    def show_result(func):
+        def wrapper(self, rom_buffer):
+            try:
+                func(self, rom_buffer)
+
+                print('[' + Fore.GREEN + '   OK  ' + Fore.RESET + '] '
+                      + self._field_name)
+            except AssertionError:
+                print('[' + Fore.RED + ' ERROR ' + Fore.RESET + '] '
+                      + self._field_name)
+
+        return wrapper
 
 class TmrSegaValidator(FieldValidator):
 
@@ -74,7 +72,7 @@ class TmrSegaValidator(FieldValidator):
         FieldValidator.__init__(self, 'TMR SEGA', Offsets.TMR_SEGA,
                                 Lengths.TMR_SEGA, b'TMR SEGA')
 
-    @show_result
+    @FieldValidator.show_result
     def check(self, rom_buffer):
         data = rom_buffer[self._offset:(self._offset + self._size)]
 
@@ -87,7 +85,7 @@ class ReservedSpaceValidator(FieldValidator):
                                 Lengths.RESERVED_SPACE,
                                 [b'\x00\x00', b'\xff\xff', b'\x20\x20'])
 
-    @show_result
+    @FieldValidator.show_result
     def check(self, rom_buffer):
         data = rom_buffer[self._offset:(self._offset + self._size)]
 
@@ -102,7 +100,7 @@ class ChecksumValidator(FieldValidator):
         FieldValidator.__init__(self, 'Checksum', Offsets.CHECKSUM,
                                 Lengths.CHECKSUM, checksum)
 
-    @show_result
+    @FieldValidator.show_result
     def check(self, rom_buffer):
         assert 1 == 2
 
