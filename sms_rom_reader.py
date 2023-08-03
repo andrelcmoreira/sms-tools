@@ -44,9 +44,11 @@ def show_result(func):
     def wrapper(self, rom_buffer):
         try:
             func(self, rom_buffer)
-            print('[' + Fore.GREEN + self._field_name + Fore.RESET + '] OK!')
+            print('[' + Fore.GREEN + '   OK  ' + Fore.RESET + '] '
+                  + self.field_name)
         except AssertionError:
-            print('[' + Fore.RED + self._field_name + Fore.RESET + '] ERROR!')
+            print('[' + Fore.RED + ' ERROR ' + Fore.RESET + '] '
+                  + self.field_name)
 
     return wrapper
 
@@ -61,6 +63,10 @@ class FieldValidator(ABC):
     @abstractmethod
     def check(self, rom_buffer):
         pass
+
+    @property
+    def field_name(self):
+        return self._field_name
 
 class TmrSegaValidator(FieldValidator):
 
