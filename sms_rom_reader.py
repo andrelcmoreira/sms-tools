@@ -109,17 +109,17 @@ class ChecksumValidator(FieldValidator):
     def _calculate_checksum(rom_buffer):
         return 0 # TODO
 
-_VALIDATORS = [
-    TmrSegaValidator(),
-    ReservedSpaceValidator(),
-    ChecksumValidator()
-]
-
 def main(rom_file):
+    validators = [
+        TmrSegaValidator(),
+        ReservedSpaceValidator(),
+        ChecksumValidator()
+    ]
+
     with open(rom_file, 'rb') as f:
         data = f.read()
 
-        for val in _VALIDATORS:
+        for val in validators:
             val.check(data)
 
 def parse_args():
