@@ -48,14 +48,15 @@ class FieldValidator(ABC):
         self._size = size.value
 
     @abstractmethod
-    def check(self, rom_buffer):
+    def check(self, data):
         pass
 
     @staticmethod
     def show_result(func):
         def wrapper(self, rom_buffer):
             try:
-                func(self, rom_buffer)
+                data = rom_buffer[self._offset:(self._offset + self._size)]
+                func(self, data, rom_buffer)
 
                 print('[' + Fore.GREEN + '  OK  ' + Fore.RESET + '] '
                       + self._field_name)
@@ -72,9 +73,8 @@ class TmrSegaValidator(FieldValidator):
                                 Lengths.TMR_SEGA)
 
     @FieldValidator.show_result
-    def check(self, rom_buffer):
+    def check(self, data, rom_buffer):
         expected = b'TMR SEGA'
-        data = rom_buffer[self._offset:(self._offset + self._size)]
 
         assert expected == data
 
@@ -85,9 +85,8 @@ class ReservedSpaceValidator(FieldValidator):
                                 Lengths.RESERVED_SPACE)
 
     @FieldValidator.show_result
-    def check(self, rom_buffer):
+    def check(self, data, rom_buffer):
         expected = [b'\x00\x00', b'\xff\xff', b'\x20\x20']
-        data = rom_buffer[self._offset:(self._offset + self._size)]
 
         assert (data == expected[0]) or (data == expected[1]) \
                 or (data == expected[2])
@@ -99,15 +98,8 @@ class ChecksumValidator(FieldValidator):
                                 Lengths.CHECKSUM)
 
     @FieldValidator.show_result
-    def check(self, rom_buffer):
-        expected = self._calculate_checksum(rom_buffer)
-        data = rom_buffer[self._offset:(self._offset + self._size)]
-
-        assert data == expected
-
-    @staticmethod
-    def _calculate_checksum(rom_buffer):
-        return 0 # TODO
+    def check(self, data, rom_buffer):
+        assert 1 == 2
 
 class ProductCodeValidator(FieldValidator):
 
@@ -116,7 +108,7 @@ class ProductCodeValidator(FieldValidator):
                                 Lengths.PRODUCT_CODE)
 
     @FieldValidator.show_result
-    def check(self, rom_buffer):
+    def check(self, data, rom_buffer):
         assert 1 == 2
 
 class VersionValidator(FieldValidator):
@@ -126,11 +118,10 @@ class VersionValidator(FieldValidator):
                                 Lengths.VERSION)
 
     @FieldValidator.show_result
-    def check(self, rom_buffer):
-        data = rom_buffer[self._offset:(self._offset + self._size)]
-        version = data.hex()[1]
+    def check(self, data, rom_buffer):
+        version = int(data.hex()[1], 16)
 
-        assert version.isdigit()
+        assert (version >= 0) and (version <= 15)
 
 class RegionCodeValidator(FieldValidator):
 
@@ -139,8 +130,7 @@ class RegionCodeValidator(FieldValidator):
                                 Lengths.REGION_CODE)
 
     @FieldValidator.show_result
-    def check(self, rom_buffer):
-        data = rom_buffer[self._offset:(self._offset + self._size)]
+    def check(self, data, rom_buffer):
         region_code = int(data.hex()[0])
 
         assert (region_code >= RegionCode.SMS_JAPAN.value) and \
@@ -153,8 +143,19 @@ class RomSizeValidator(FieldValidator):
                                 Lengths.ROM_SIZE)
 
     @FieldValidator.show_result
-    def check(self, rom_buffer):
-        assert 1 == 2
+    def check(self, data, rom_buffer):
+        rom_size_entry = int(data.hex()[1])
+        rom_size_map = {
+            RomSize.SIZE_8KB.value: (8 * 1024),
+            RomSize.SIZE_16KB.value: (16 * 1024),
+            RomSize.SIZE_32KB.value: (32 * 1024),
+            RomSize.SIZE_64KB.value: (64 * 1024),
+            RomSize.SIZE_128KB.value: (128 * 1024),
+            RomSize.SIZE_256KB.value: (256 * 1024),
+            RomSize.SIZE_1MB.value: (1024 * 1024)
+        }
+
+        assert rom_size_map[rom_size_entry] == len(rom_buffer)
 
 def main(rom_file):
     validators = [
@@ -176,8 +177,7 @@ def main(rom_file):
 def parse_args():
     parser = ArgumentParser(prog=argv[0])
 
-    parser.add_argument('-r', '--rom-file', metavar='file',
-                        help='ROM file')
+    parser.add_argument('-c', '--check-rom', metavar='file', help='ROM file')
 
     # no arguments provided
     if len(argv) == 1:
@@ -190,4 +190,4 @@ if __name__ == "__main__":
     args = parse_args()
 
     if args:
-        main(args.rom_file)
+        main(args.check_rom)
