@@ -60,9 +60,9 @@ class FieldValidator(ABC):
 
                 print('[' + Fore.GREEN + '  OK  ' + Fore.RESET + '] '
                       + self._field_name)
-            except AssertionError:
+            except AssertionError as e:
                 print('[' + Fore.RED + ' FAIL ' + Fore.RESET + '] '
-                      + self._field_name)
+                      + self._field_name + '...' + str(e))
 
         return wrapper
 
@@ -76,7 +76,7 @@ class TmrSegaValidator(FieldValidator):
     def check(self, data, rom_buffer):
         expected = b'TMR SEGA'
 
-        assert expected == data
+        assert expected == data, f'{data.decode()} != {expected.decode()}'
 
 class ReservedSpaceValidator(FieldValidator):
 
@@ -89,7 +89,8 @@ class ReservedSpaceValidator(FieldValidator):
         expected = [b'\x00\x00', b'\xff\xff', b'\x20\x20']
 
         assert (data == expected[0]) or (data == expected[1]) \
-                or (data == expected[2])
+                or (data == expected[2]), \
+                "the reserved space must be '0x0000', '0xffff' or '0x2020'"
 
 class ChecksumValidator(FieldValidator):
 
@@ -99,7 +100,12 @@ class ChecksumValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
-        assert 1 == 2
+        checksum = self._calculate_checksum(rom_buffer)
+
+        assert data == checksum, f'0x{data.hex()} != 0x{checksum}'
+
+    def _calculate_checksum(self, rom):
+        return 0 # TODO
 
 class ProductCodeValidator(FieldValidator):
 
@@ -111,7 +117,7 @@ class ProductCodeValidator(FieldValidator):
     def check(self, data, rom_buffer):
         code = data.hex()[0:5]
 
-        assert code.isdigit()
+        assert code.isdigit(), 'the product code must be a numerical string'
 
 class VersionValidator(FieldValidator):
 
@@ -123,7 +129,8 @@ class VersionValidator(FieldValidator):
     def check(self, data, rom_buffer):
         version = int(data.hex()[1], 16)
 
-        assert (version >= 0) and (version <= 15)
+        assert (version >= 0) and (version <= 15), \
+                f"unknown version '{version}'"
 
 class RegionCodeValidator(FieldValidator):
 
@@ -136,7 +143,8 @@ class RegionCodeValidator(FieldValidator):
         region_code = int(data.hex()[0])
 
         assert (region_code >= RegionCode.SMS_JAPAN.value) and \
-            (region_code <= RegionCode.GG_INTERNATIONAL.value)
+            (region_code <= RegionCode.GG_INTERNATIONAL.value), \
+            f"unknown region code '{region_code}'"
 
 class RomSizeValidator(FieldValidator):
 
