@@ -109,11 +109,65 @@ class ChecksumValidator(FieldValidator):
     def _calculate_checksum(rom_buffer):
         return 0 # TODO
 
+class ProductCodeValidator(FieldValidator):
+
+    def __init__(self):
+        FieldValidator.__init__(self, 'Product code', Offsets.PRODUCT_CODE,
+                                Lengths.PRODUCT_CODE)
+
+    @FieldValidator.show_result
+    def check(self, rom_buffer):
+        assert 1 == 2
+
+class VersionValidator(FieldValidator):
+
+    def __init__(self):
+        FieldValidator.__init__(self, 'Version', Offsets.VERSION,
+                                Lengths.VERSION)
+
+    @FieldValidator.show_result
+    def check(self, rom_buffer):
+        assert 1 == 2
+
+class RomSizeValidator(FieldValidator):
+
+    def __init__(self):
+        FieldValidator.__init__(self, 'ROM size', Offsets.ROM_SIZE,
+                                Lengths.ROM_SIZE)
+
+    @FieldValidator.show_result
+    def check(self, rom_buffer):
+        assert 1 == 2
+
+class RegionCodeValidator(FieldValidator):
+
+    def __init__(self):
+        FieldValidator.__init__(self, 'Region code', Offsets.REGION_CODE,
+                                Lengths.REGION_CODE)
+
+    @FieldValidator.show_result
+    def check(self, rom_buffer):
+        assert 1 == 2
+
+class RegionCodeValidator(FieldValidator):
+
+    def __init__(self):
+        FieldValidator.__init__(self, 'Region code', Offsets.REGION_CODE,
+                                Lengths.REGION_CODE)
+
+    @FieldValidator.show_result
+    def check(self, rom_buffer):
+        assert 1 == 2
+
 def main(rom_file):
     validators = [
         TmrSegaValidator(),
         ReservedSpaceValidator(),
-        ChecksumValidator()
+        ChecksumValidator(),
+        ProductCodeValidator(),
+        VersionValidator(),
+        RegionCodeValidator(),
+        RomSizeValidator()
     ]
 
     with open(rom_file, 'rb') as f:
