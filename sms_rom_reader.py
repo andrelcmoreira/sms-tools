@@ -127,33 +127,30 @@ class VersionValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, rom_buffer):
-        assert 1 == 2
+        data = rom_buffer[self._offset:(self._offset + self._size)]
+        version = data.hex()[1]
+
+        assert version.isdigit()
+
+class RegionCodeValidator(FieldValidator):
+
+    def __init__(self):
+        FieldValidator.__init__(self, 'Region code', Offsets.REGION_CODE,
+                                Lengths.REGION_CODE)
+
+    @FieldValidator.show_result
+    def check(self, rom_buffer):
+        data = rom_buffer[self._offset:(self._offset + self._size)]
+        region_code = int(data.hex()[0])
+
+        assert (region_code >= RegionCode.SMS_JAPAN.value) and \
+            (region_code <= RegionCode.GG_INTERNATIONAL.value)
 
 class RomSizeValidator(FieldValidator):
 
     def __init__(self):
         FieldValidator.__init__(self, 'ROM size', Offsets.ROM_SIZE,
                                 Lengths.ROM_SIZE)
-
-    @FieldValidator.show_result
-    def check(self, rom_buffer):
-        assert 1 == 2
-
-class RegionCodeValidator(FieldValidator):
-
-    def __init__(self):
-        FieldValidator.__init__(self, 'Region code', Offsets.REGION_CODE,
-                                Lengths.REGION_CODE)
-
-    @FieldValidator.show_result
-    def check(self, rom_buffer):
-        assert 1 == 2
-
-class RegionCodeValidator(FieldValidator):
-
-    def __init__(self):
-        FieldValidator.__init__(self, 'Region code', Offsets.REGION_CODE,
-                                Lengths.REGION_CODE)
 
     @FieldValidator.show_result
     def check(self, rom_buffer):
