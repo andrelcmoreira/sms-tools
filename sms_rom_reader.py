@@ -109,7 +109,9 @@ class ProductCodeValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
-        assert 1 == 2
+        code = data.hex()[0:5]
+
+        assert code.isdigit()
 
 class VersionValidator(FieldValidator):
 
