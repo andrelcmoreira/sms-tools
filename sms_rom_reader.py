@@ -57,10 +57,10 @@ class FieldValidator(ABC):
             try:
                 func(self, rom_buffer)
 
-                print('[' + Fore.GREEN + '   OK  ' + Fore.RESET + '] '
+                print('[' + Fore.GREEN + '  OK  ' + Fore.RESET + '] '
                       + self._field_name)
             except AssertionError:
-                print('[' + Fore.RED + ' ERROR ' + Fore.RESET + '] '
+                print('[' + Fore.RED + ' FAIL ' + Fore.RESET + '] '
                       + self._field_name)
 
         return wrapper
