@@ -1,8 +1,8 @@
+from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from colorama import Fore
 from enum import Enum
 from sys import argv
-from abc import ABC, abstractmethod
 
 
 class Offsets(Enum):
@@ -53,7 +53,7 @@ class FieldValidator(ABC):
         self._size = size.value
 
     @abstractmethod
-    def check(self, data):
+    def check(self, data, rom_buffer):
         pass
 
     @staticmethod
