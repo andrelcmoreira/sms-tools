@@ -4,6 +4,7 @@ from enum import Enum
 from sys import argv
 from abc import ABC, abstractmethod
 
+
 class Offsets(Enum):
     TMR_SEGA = 0x7ff0
     RESERVED_SPACE = 0x7ff8
@@ -12,6 +13,7 @@ class Offsets(Enum):
     VERSION = 0x7ffe
     REGION_CODE = 0x7fff
     ROM_SIZE = 0x7fff
+
 
 class RomSize(Enum):
     SIZE_8KB = 0xa
@@ -24,12 +26,14 @@ class RomSize(Enum):
     SIZE_512KB = 0x1
     SIZE_1MB = 0x2
 
+
 class RegionCode(Enum):
     SMS_JAPAN = 3
     SMS_EXPORT = 4
     GG_JAPAN = 5
     GG_EXPORT = 6
     GG_INTERNATIONAL = 7
+
 
 class Lengths(Enum):
     TMR_SEGA = 8
@@ -39,6 +43,7 @@ class Lengths(Enum):
     VERSION = 1 # 0.5 bytes
     REGION_CODE = 1 # 0.5 bytes
     ROM_SIZE = 1 # 0.5 bytes
+
 
 class FieldValidator(ABC):
 
@@ -66,6 +71,7 @@ class FieldValidator(ABC):
 
         return wrapper
 
+
 class TmrSegaValidator(FieldValidator):
 
     def __init__(self):
@@ -77,6 +83,7 @@ class TmrSegaValidator(FieldValidator):
         expected = b'TMR SEGA'
 
         assert expected == data, f'{data.decode()} != {expected.decode()}'
+
 
 class ReservedSpaceValidator(FieldValidator):
 
@@ -91,6 +98,7 @@ class ReservedSpaceValidator(FieldValidator):
         assert (data == expected[0]) or (data == expected[1]) \
                 or (data == expected[2]), \
                 "the reserved space must be '0x0000', '0xffff' or '0x2020'"
+
 
 class ChecksumValidator(FieldValidator):
 
@@ -107,6 +115,7 @@ class ChecksumValidator(FieldValidator):
     def _calculate_checksum(self, rom):
         return 0 # TODO
 
+
 class ProductCodeValidator(FieldValidator):
 
     def __init__(self):
@@ -118,6 +127,7 @@ class ProductCodeValidator(FieldValidator):
         code = data.hex()[0:5]
 
         assert code.isdigit(), 'the product code must be a numerical string'
+
 
 class VersionValidator(FieldValidator):
 
@@ -132,6 +142,7 @@ class VersionValidator(FieldValidator):
         assert (version >= 0) and (version <= 15), \
                 f"unknown version '{version}'"
 
+
 class RegionCodeValidator(FieldValidator):
 
     def __init__(self):
@@ -145,6 +156,7 @@ class RegionCodeValidator(FieldValidator):
         assert (region_code >= RegionCode.SMS_JAPAN.value) and \
             (region_code <= RegionCode.GG_INTERNATIONAL.value), \
             f"unknown region code '{region_code}'"
+
 
 class RomSizeValidator(FieldValidator):
 
@@ -167,6 +179,7 @@ class RomSizeValidator(FieldValidator):
 
         assert rom_size_map[rom_size_entry] == len(rom_buffer)
 
+
 def main(rom_file):
     validators = [
         TmrSegaValidator(),
@@ -184,6 +197,7 @@ def main(rom_file):
         for val in validators:
             val.check(data)
 
+
 def parse_args():
     parser = ArgumentParser(prog=argv[0])
 
@@ -195,6 +209,7 @@ def parse_args():
         return None
 
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()
