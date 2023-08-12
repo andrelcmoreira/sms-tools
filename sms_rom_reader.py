@@ -109,11 +109,64 @@ class ChecksumValidator(FieldValidator):
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
         checksum = self._calculate_checksum(rom_buffer)
+        hex_data = data.hex()
 
-        assert data == checksum, f'0x{data.hex()} != 0x{checksum}'
+        # TODO: improve this
+        assert (hex_data[0] == checksum[4]) and \
+                (hex_data[1] == checksum[5]) and \
+                (hex_data[2] == checksum[2]) and \
+                (hex_data[3] == checksum[3]), f'0x{data.hex()} != {checksum}'
 
     def _calculate_checksum(self, rom):
-        return 0 # TODO
+        # TODO: improve this
+        i = 0x8000
+        rom_page = 0xd # ????
+        checksum_range = 0x7ff0
+        checksum = self._checksum(rom, 0, checksum_range, 0)
+
+        while True:
+            checksum = self._checksum(rom, checksum, 0x4000, i)
+
+            if rom_page == 0:
+                break
+
+            rom_page -= 1
+            i += (0x4000)
+
+        return hex(checksum)
+
+    def _checksum(self, buffer, cc_last, checksum_range, i):
+        cs1 = (cc_last >> 8) & 0xff
+        cs2 = cc_last & 0xff
+        cs3 = 0
+        e = 0
+        ov1 = 0
+        ov2 = 0
+
+        while True:
+            e = cs2
+            ov1 = e
+            e += buffer[i]
+            ov2 = e & 0xff
+
+            if ov1 > ov2:
+                cs3 = 1
+
+            cs2 = e & 0xff
+            e = cs1
+            e += cs3
+            cs3 = 0
+            cs1 = e
+            i += 1
+
+            checksum_range -= 1
+            if checksum_range == 0:
+                break
+
+        cc_last = (cs1 << 8) & 0xff00
+        cc_last |= cs2
+
+        return cc_last & 0xffff
 
 
 class ProductCodeValidator(FieldValidator):
