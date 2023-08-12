@@ -109,13 +109,8 @@ class ChecksumValidator(FieldValidator):
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
         checksum = self._calculate_checksum(rom_buffer)
-        hex_data = data.hex()
 
-        # TODO: improve this
-        assert (hex_data[0] == checksum[4]) and \
-                (hex_data[1] == checksum[5]) and \
-                (hex_data[2] == checksum[2]) and \
-                (hex_data[3] == checksum[3]), f'0x{data.hex()} != {checksum}'
+        assert data == checksum, f'0x{data.hex()} != 0x{checksum.hex()}'
 
     def _calculate_checksum(self, rom):
         # TODO: improve this
@@ -131,9 +126,9 @@ class ChecksumValidator(FieldValidator):
                 break
 
             rom_page -= 1
-            i += (0x4000)
+            i += 0x4000
 
-        return hex(checksum)
+        return checksum.to_bytes(2, byteorder='little')
 
     def _checksum(self, buffer, cc_last, checksum_range, i):
         cs1 = (cc_last >> 8) & 0xff
