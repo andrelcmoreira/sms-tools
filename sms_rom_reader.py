@@ -114,9 +114,9 @@ class ChecksumValidator(FieldValidator):
 
     def _calculate_checksum(self, rom):
         # TODO: improve this
-        i = 0x8000
+        i = 0x8000 # ???
         rom_page = 0xd # ????
-        checksum_range = 0x7ff0
+        checksum_range = 0x7ff0 # ???
         checksum = self._checksum(rom, 0, checksum_range, 0)
 
         while True:
@@ -128,9 +128,11 @@ class ChecksumValidator(FieldValidator):
             rom_page -= 1
             i += 0x4000
 
-        return checksum.to_bytes(2, byteorder='little')
+        return checksum.to_bytes(Lengths.CHECKSUM.value, byteorder='little')
 
     def _checksum(self, buffer, cc_last, checksum_range, i):
+        # TODO: improve this
+        # https://github.com/masible/smssum/blob/master/main.c
         cs1 = (cc_last >> 8) & 0xff
         cs2 = cc_last & 0xff
         cs3 = 0
@@ -228,7 +230,7 @@ class RomSizeValidator(FieldValidator):
         assert rom_size_map[rom_size_entry] == len(rom_buffer)
 
 
-def main(rom_file):
+def check(rom_file):
     validators = [
         TmrSegaValidator(),
         ReservedSpaceValidator(),
@@ -246,10 +248,18 @@ def main(rom_file):
             val.check(data)
 
 
+def main(args):
+    if args.check:
+        check(args.rom_file)
+
+
 def parse_args():
     parser = ArgumentParser(prog=argv[0])
 
-    parser.add_argument('-c', '--check-rom', metavar='file', help='ROM file')
+    parser.add_argument('-c', '--check', action='store_true',
+                        help='check the ROM coherence')
+    parser.add_argument('-f', '--rom-file', metavar='file', help='ROM file',
+                        required=True)
 
     # no arguments provided
     if len(argv) == 1:
@@ -262,5 +272,4 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    if args:
-        main(args.check_rom)
+    main(args)
