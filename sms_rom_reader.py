@@ -114,14 +114,12 @@ class ChecksumValidator(FieldValidator):
 
     def _calculate_checksum(self, rom):
         page_size = 0x4000 # size of page
-        start_offset = 0x8000 # first address after the header
-        page_count = 0xd # number of pages after header
-        cksum = self._checksum(rom, 0, Offsets.TMR_SEGA.value, 0) # checksum of first page
+        start_offset = 0x8000 # first address after header
+        remaining_pages = int(len(rom) / page_size) - 3 # number of pages after header
+        cksum = self._checksum(rom, 0, Offsets.TMR_SEGA.value, 0) # checksum of first two pages
 
-        while page_count >= 0:
+        for _ in range(remaining_pages, -1, -1):
             cksum = self._checksum(rom, cksum, page_size, start_offset)
-
-            page_count -= 1
             start_offset += 0x4000
 
         return cksum.to_bytes(Lengths.CHECKSUM.value, byteorder='little')
@@ -129,10 +127,7 @@ class ChecksumValidator(FieldValidator):
     def _checksum(self, buffer, cc_last, start_addr, index):
         cs1 = (cc_last >> 8) & 0xff
         cs2 = cc_last & 0xff
-        cs3 = 0
-        e = 0
-        ov1 = 0
-        ov2 = 0
+        cs3 = e = ov1 = ov2 = 0
 
         for i in range(index, start_addr + index):
             e = cs2
