@@ -68,6 +68,9 @@ class FieldValidator(ABC):
             except AssertionError as e:
                 print('[' + Fore.RED + ' FAIL ' + Fore.RESET + '] '
                       + self._field_name + '...' + str(e))
+            except UnicodeDecodeError:
+                print('[' + Fore.RED + ' FAIL ' + Fore.RESET + '] '
+                      + self._field_name)
 
         return wrapper
 
@@ -183,7 +186,7 @@ class RegionCodeValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
-        region_code = int(data.hex()[0])
+        region_code = int(data.hex()[0], 16)
 
         assert (region_code >= RegionCode.SMS_JAPAN.value) and \
             (region_code <= RegionCode.GG_INTERNATIONAL.value), \
@@ -209,7 +212,8 @@ class RomSizeValidator(FieldValidator):
             RomSize.SIZE_1MB.value: (1024 * 1024)
         }
 
-        assert rom_size_map[rom_size_entry] == len(rom_buffer)
+        assert rom_size_map[rom_size_entry] == len(rom_buffer), \
+            f'{rom_size_map[rom_size_entry]} != {len(rom_buffer)}'
 
 
 def check(rom_file):
