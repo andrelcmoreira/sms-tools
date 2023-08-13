@@ -113,26 +113,20 @@ class ChecksumValidator(FieldValidator):
         assert data == checksum, f'0x{data.hex()} != 0x{checksum.hex()}'
 
     def _calculate_checksum(self, rom):
-        # TODO: improve this
-        i = 0x8000 # ???
-        rom_page = 0xd # ????
-        checksum_range = 0x7ff0 # ???
-        checksum = self._checksum(rom, 0, checksum_range, 0)
+        page_size = 0x4000 # size of page
+        start_offset = 0x8000 # first address after the header
+        page_count = 0xd # number of pages after header
+        cksum = self._checksum(rom, 0, Offsets.TMR_SEGA.value, 0) # checksum of first page
 
-        while True:
-            checksum = self._checksum(rom, checksum, 0x4000, i)
+        while page_count >= 0:
+            cksum = self._checksum(rom, cksum, page_size, start_offset)
 
-            if rom_page == 0:
-                break
+            page_count -= 1
+            start_offset += 0x4000
 
-            rom_page -= 1
-            i += 0x4000
+        return cksum.to_bytes(Lengths.CHECKSUM.value, byteorder='little')
 
-        return checksum.to_bytes(Lengths.CHECKSUM.value, byteorder='little')
-
-    def _checksum(self, buffer, cc_last, checksum_range, i):
-        # TODO: improve this
-        # https://github.com/masible/smssum/blob/master/main.c
+    def _checksum(self, buffer, cc_last, start_addr, index):
         cs1 = (cc_last >> 8) & 0xff
         cs2 = cc_last & 0xff
         cs3 = 0
@@ -140,7 +134,7 @@ class ChecksumValidator(FieldValidator):
         ov1 = 0
         ov2 = 0
 
-        while True:
+        for i in range(index, start_addr + index):
             e = cs2
             ov1 = e
             e += buffer[i]
@@ -150,18 +144,11 @@ class ChecksumValidator(FieldValidator):
                 cs3 = 1
 
             cs2 = e & 0xff
-            e = cs1
-            e += cs3
+            e = cs1 + cs3
             cs3 = 0
             cs1 = e
-            i += 1
 
-            checksum_range -= 1
-            if checksum_range == 0:
-                break
-
-        cc_last = (cs1 << 8) & 0xff00
-        cc_last |= cs2
+        cc_last = (cs1 << 8) & 0xff00 | cs2
 
         return cc_last & 0xffff
 
@@ -272,4 +259,5 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    main(args)
+    if args:
+        main(args)
