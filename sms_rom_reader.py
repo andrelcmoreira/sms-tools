@@ -198,7 +198,7 @@ class RomSizeValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
-        rom_size_entry = int(data.hex()[1])
+        rom_size_entry = int(data.hex()[1], 16)
         rom_size_map = {
             RomSize.SIZE_8KB.value: (8 * 1024),
             RomSize.SIZE_16KB.value: (16 * 1024),
