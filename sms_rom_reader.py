@@ -109,11 +109,25 @@ class ChecksumValidator(FieldValidator):
         FieldValidator.__init__(self, 'Checksum', Offsets.CHECKSUM,
                                 Lengths.CHECKSUM)
 
+
+    def _sanitize(self, hex_str):
+        # TODO: improve this
+        result = ''
+
+        for i in range(0, len(hex_str)):
+            if (hex_str[i] == '0') and ((i % 2) == 0):
+                continue
+
+            result += hex_str[i]
+
+        return result
+
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
         checksum = self._calculate_checksum(rom_buffer)
+        sanitized = self._sanitize(checksum.hex())
 
-        assert data == checksum, f'0x{data.hex()} != 0x{checksum.hex()}'
+        assert data == checksum, f'0x{data.hex()} != 0x{sanitized}'
 
     def _calculate_checksum(self, rom):
         page_size = 0x4000 # size of page
