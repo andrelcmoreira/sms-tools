@@ -85,7 +85,7 @@ class TmrSegaValidator(FieldValidator):
     def check(self, data, rom_buffer):
         expected = b'TMR SEGA'
 
-        assert expected == data, f'{data.decode()} != {expected.decode()}'
+        assert data == expected, f'{data.decode()} != {expected.decode()}'
 
 
 class ReservedSpaceValidator(FieldValidator):
@@ -109,30 +109,16 @@ class ChecksumValidator(FieldValidator):
         FieldValidator.__init__(self, 'Checksum', Offsets.CHECKSUM,
                                 Lengths.CHECKSUM)
 
-
-    def _sanitize(self, hex_str):
-        # TODO: improve this
-        result = ''
-
-        for i in range(0, len(hex_str)):
-            if (hex_str[i] == '0') and ((i % 2) == 0):
-                continue
-
-            result += hex_str[i]
-
-        return result
-
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
         checksum = self._calculate_checksum(rom_buffer)
-        sanitized = self._sanitize(checksum.hex())
 
-        assert data == checksum, f'0x{data.hex()} != 0x{sanitized}'
+        assert data == checksum, f'0x{data.hex()} != 0x{checksum.hex()}'
 
     def _calculate_checksum(self, rom):
         page_size = 0x4000 # size of page
         start_offset = 0x8000 # first address after header
-        rem_pages = int(RomSizeCalculator.get_virtual_size(rom) / page_size) - 3 # number of pages after header
+        rem_pages = int(RomSizeCalc.get_virtual_size(rom) / page_size) - 3 # number of pages after header
         cksum = self._checksum(rom, 0, Offsets.TMR_SEGA.value, 0) # checksum of first two pages
 
         for _ in range(rem_pages, -1, -1):
@@ -207,9 +193,9 @@ class RegionCodeValidator(FieldValidator):
             f"unknown region code '{region_code}'"
 
 
-class RomSizeCalculator:
+class RomSizeCalc:
 
-    rom_size_table = {
+    _rom_size_table = {
         RomSize.SIZE_8KB.value: (8 * 1024),
         RomSize.SIZE_16KB.value: (16 * 1024),
         RomSize.SIZE_32KB.value: (32 * 1024),
@@ -227,15 +213,15 @@ class RomSizeCalculator:
     def get_virtual_size(cls, rom_buffer):
         data = rom_buffer[Offsets.ROM_SIZE.value:(Offsets.ROM_SIZE.value + \
             Lengths.ROM_SIZE.value)]
-        rom_size_entry = int(data.hex()[1], 16)
+        rom_size_code = int(data.hex()[1], 16)
 
-        return cls.rom_size_table[rom_size_entry]
+        return cls._rom_size_table[rom_size_code]
 
     @classmethod
-    def get_virtual_size_from_rom_size(cls, rom_size):
+    def get_virtual_size_from_field(cls, rom_size):
         idx = int(rom_size.hex()[1], 16)
 
-        return cls.rom_size_table[idx]
+        return cls._rom_size_table[idx]
 
 
 class RomSizeValidator(FieldValidator):
@@ -246,10 +232,10 @@ class RomSizeValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
-        real = RomSizeCalculator.get_real_size(rom_buffer)
-        virtual = RomSizeCalculator.get_virtual_size_from_rom_size(data)
+        real = RomSizeCalc.get_real_size(rom_buffer)
+        virtual = RomSizeCalc.get_virtual_size_from_field(data)
 
-        assert real == virtual, f'{virtual} != {real}'
+        assert virtual == real, f'{virtual} != {real}'
 
 
 def check(rom_file):
