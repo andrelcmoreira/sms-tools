@@ -103,31 +103,27 @@ class ReservedSpaceValidator(FieldValidator):
                 "the reserved space must be '0x0000', '0xffff' or '0x2020'"
 
 
-class ChecksumValidator(FieldValidator):
+class RomChecksumCalc:
 
-    def __init__(self):
-        FieldValidator.__init__(self, 'Checksum', Offsets.CHECKSUM,
-                                Lengths.CHECKSUM)
+    _PAGE_SIZE = 0x4000
 
-    @FieldValidator.show_result
-    def check(self, data, rom_buffer):
-        checksum = self._calculate_checksum(rom_buffer)
-
-        assert data == checksum, f'0x{data.hex()} != 0x{checksum.hex()}'
-
-    def _calculate_checksum(self, rom):
-        page_size = 0x4000 # size of page
-        start_offset = 0x8000 # first address after header
-        rem_pages = int(RomSizeCalc.get_virtual_size(rom) / page_size) - 3 # number of pages after header
-        cksum = self._checksum(rom, 0, Offsets.TMR_SEGA.value, 0) # checksum of first two pages
+    @classmethod
+    def calculate(cls, rom):
+        start_offset = 0x8000
+        # number of pages after header
+        rem_pages = int(RomSizeCalc.get_virtual_size(rom) / cls._PAGE_SIZE) - 3
+        # checksum of first two pages
+        cksum = RomChecksumCalc._checksum(rom, 0, Offsets.TMR_SEGA.value, 0)
 
         for _ in range(rem_pages, -1, -1):
-            cksum = self._checksum(rom, cksum, page_size, start_offset)
-            start_offset += 0x4000
+            cksum = RomChecksumCalc._checksum(rom, cksum, cls._PAGE_SIZE, \
+                start_offset)
+            start_offset += cls._PAGE_SIZE
 
         return cksum.to_bytes(Lengths.CHECKSUM.value, byteorder='little')
 
-    def _checksum(self, buffer, cc_last, start_addr, index):
+    @staticmethod
+    def _checksum(buffer, cc_last, start_addr, index):
         cs1 = (cc_last >> 8) & 0xff
         cs2 = cc_last & 0xff
         cs3 = e = ov1 = ov2 = 0
@@ -149,6 +145,19 @@ class ChecksumValidator(FieldValidator):
         cc_last = (cs1 << 8) & 0xff00 | cs2
 
         return cc_last & 0xffff
+
+
+class ChecksumValidator(FieldValidator):
+
+    def __init__(self):
+        FieldValidator.__init__(self, 'Checksum', Offsets.CHECKSUM,
+                                Lengths.CHECKSUM)
+
+    @FieldValidator.show_result
+    def check(self, data, rom_buffer):
+        checksum = RomChecksumCalc.calculate(rom_buffer)
+
+        assert data == checksum, f'0x{data.hex()} != 0x{checksum.hex()}'
 
 
 class ProductCodeValidator(FieldValidator):
