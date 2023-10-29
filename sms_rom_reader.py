@@ -132,10 +132,10 @@ class ChecksumValidator(FieldValidator):
     def _calculate_checksum(self, rom):
         page_size = 0x4000 # size of page
         start_offset = 0x8000 # first address after header
-        remaining_pages = int(len(rom) / page_size) - 3 # number of pages after header
+        rem_pages = int(RomSizeCalculator.get_virtual_size(rom) / page_size) - 3 # number of pages after header
         cksum = self._checksum(rom, 0, Offsets.TMR_SEGA.value, 0) # checksum of first two pages
 
-        for _ in range(remaining_pages, -1, -1):
+        for _ in range(rem_pages, -1, -1):
             cksum = self._checksum(rom, cksum, page_size, start_offset)
             start_offset += 0x4000
 
@@ -207,6 +207,37 @@ class RegionCodeValidator(FieldValidator):
             f"unknown region code '{region_code}'"
 
 
+class RomSizeCalculator:
+
+    rom_size_table = {
+        RomSize.SIZE_8KB.value: (8 * 1024),
+        RomSize.SIZE_16KB.value: (16 * 1024),
+        RomSize.SIZE_32KB.value: (32 * 1024),
+        RomSize.SIZE_64KB.value: (64 * 1024),
+        RomSize.SIZE_128KB.value: (128 * 1024),
+        RomSize.SIZE_256KB.value: (256 * 1024),
+        RomSize.SIZE_1MB.value: (1024 * 1024)
+    }
+
+    @staticmethod
+    def get_real_size(rom_buffer):
+        return len(rom_buffer)
+
+    @classmethod
+    def get_virtual_size(cls, rom_buffer):
+        data = rom_buffer[Offsets.ROM_SIZE.value:(Offsets.ROM_SIZE.value + \
+            Lengths.ROM_SIZE.value)]
+        rom_size_entry = int(data.hex()[1], 16)
+
+        return cls.rom_size_table[rom_size_entry]
+
+    @classmethod
+    def get_virtual_size_from_rom_size(cls, rom_size):
+        idx = int(rom_size.hex()[1], 16)
+
+        return cls.rom_size_table[idx]
+
+
 class RomSizeValidator(FieldValidator):
 
     def __init__(self):
@@ -215,19 +246,10 @@ class RomSizeValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
-        rom_size_entry = int(data.hex()[1], 16)
-        rom_size_map = {
-            RomSize.SIZE_8KB.value: (8 * 1024),
-            RomSize.SIZE_16KB.value: (16 * 1024),
-            RomSize.SIZE_32KB.value: (32 * 1024),
-            RomSize.SIZE_64KB.value: (64 * 1024),
-            RomSize.SIZE_128KB.value: (128 * 1024),
-            RomSize.SIZE_256KB.value: (256 * 1024),
-            RomSize.SIZE_1MB.value: (1024 * 1024)
-        }
+        real = RomSizeCalculator.get_real_size(rom_buffer)
+        virtual = RomSizeCalculator.get_virtual_size_from_rom_size(data)
 
-        assert rom_size_map[rom_size_entry] == len(rom_buffer), \
-            f'{rom_size_map[rom_size_entry]} != {len(rom_buffer)}'
+        assert real == virtual, f'{virtual} != {real}'
 
 
 def check(rom_file):
