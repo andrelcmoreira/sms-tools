@@ -121,19 +121,18 @@ class RomChecksumCalc:
     def calculate(cls, rom):
         start_offset = 0x8000
         # number of pages after header
-        rem_pages = int(RomSizeCalc.get_virtual_size(rom) / cls._PAGE_SIZE) - 3
+        rem_pages = int(RomSizeCalc.get_virtual_size(rom) / cls._PAGE_SIZE) - 2
         # checksum of first two pages
-        cksum = RomChecksumCalc._checksum(rom, 0, Offsets.TMR_SEGA.value, 0)
+        cksum = cls._checksum(rom, 0, Offsets.TMR_SEGA.value, 0)
 
-        for _ in range(rem_pages, -1, -1):
-            cksum = RomChecksumCalc._checksum(rom, cksum, cls._PAGE_SIZE, \
-                start_offset)
+        for _ in range(0, rem_pages, 1):
+            cksum = cls._checksum(rom, cksum, cls._PAGE_SIZE, start_offset)
             start_offset += cls._PAGE_SIZE
 
         return cksum.to_bytes(Lengths.CHECKSUM.value, byteorder='little')
 
-    @staticmethod
-    def _checksum(buffer, cc_last, start_addr, index):
+    @classmethod
+    def _checksum(cls, buffer, cc_last, start_addr, index):
         cs1 = (cc_last >> 8) & 0xff
         cs2 = cc_last & 0xff
         cs3 = e = ov1 = ov2 = 0
