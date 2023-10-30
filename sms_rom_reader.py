@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from colorama import Fore
+from dataclasses import dataclass
 from enum import Enum
 from sys import argv
 
@@ -39,18 +40,23 @@ class Lengths(Enum):
     TMR_SEGA = 8
     RESERVED_SPACE = 2
     CHECKSUM = 2
-    PRODUCT_CODE = 3 # 2.5 bytes
-    VERSION = 1 # 0.5 bytes
-    REGION_CODE = 1 # 0.5 bytes
-    ROM_SIZE = 1 # 0.5 bytes
+    PRODUCT_CODE = 3 # 2 bytes + 1 nibble
+    VERSION = 1 # 1 nibble
+    REGION_CODE = 1 # 1 nibble
+    ROM_SIZE = 1 # 1 nibble
+
+
+@dataclass
+class Field:
+    name: str
+    offset: Offsets
+    size: Lengths
 
 
 class FieldValidator(ABC):
 
-    def __init__(self, name, offset, size):
-        self._field_name = name
-        self._offset = offset.value
-        self._size = size.value
+    def __init__(self, field):
+        self._field = field
 
     @abstractmethod
     def check(self, data, rom_buffer):
@@ -59,18 +65,21 @@ class FieldValidator(ABC):
     @staticmethod
     def show_result(func):
         def wrapper(self, rom_buffer):
+            start_offs = self._field.offset.value
+            end_offs = start_offs + self._field.size.value
+
             try:
-                data = rom_buffer[self._offset:(self._offset + self._size)]
+                data = rom_buffer[start_offs:end_offs]
                 func(self, data, rom_buffer)
 
                 print('[' + Fore.GREEN + '  OK  ' + Fore.RESET + '] '
-                      + self._field_name)
+                      + self._field.name)
             except AssertionError as e:
                 print('[' + Fore.RED + ' FAIL ' + Fore.RESET + '] '
-                      + self._field_name + '...' + str(e))
+                      + self._field.name + '...' + str(e))
             except UnicodeDecodeError:
                 print('[' + Fore.RED + ' FAIL ' + Fore.RESET + '] '
-                      + self._field_name)
+                      + self._field.name)
 
         return wrapper
 
@@ -78,8 +87,8 @@ class FieldValidator(ABC):
 class TmrSegaValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, 'TMR SEGA', Offsets.TMR_SEGA,
-                                Lengths.TMR_SEGA)
+        FieldValidator.__init__(self, Field('TMR SEGA', Offsets.TMR_SEGA,
+                                            Lengths.TMR_SEGA))
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
@@ -91,8 +100,9 @@ class TmrSegaValidator(FieldValidator):
 class ReservedSpaceValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, 'Reserved space', Offsets.RESERVED_SPACE,
-                                Lengths.RESERVED_SPACE)
+        FieldValidator.__init__(self, Field('Reserved space',
+                                            Offsets.RESERVED_SPACE,
+                                            Lengths.RESERVED_SPACE))
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
@@ -150,8 +160,8 @@ class RomChecksumCalc:
 class ChecksumValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, 'Checksum', Offsets.CHECKSUM,
-                                Lengths.CHECKSUM)
+        FieldValidator.__init__(self, Field('Checksum', Offsets.CHECKSUM,
+                                            Lengths.CHECKSUM))
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
@@ -163,8 +173,9 @@ class ChecksumValidator(FieldValidator):
 class ProductCodeValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, 'Product code', Offsets.PRODUCT_CODE,
-                                Lengths.PRODUCT_CODE)
+        FieldValidator.__init__(self, Field('Product code',
+                                            Offsets.PRODUCT_CODE,
+                                            Lengths.PRODUCT_CODE))
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
@@ -176,8 +187,8 @@ class ProductCodeValidator(FieldValidator):
 class VersionValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, 'Version', Offsets.VERSION,
-                                Lengths.VERSION)
+        FieldValidator.__init__(self, Field('Version', Offsets.VERSION,
+                                            Lengths.VERSION))
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
@@ -190,8 +201,8 @@ class VersionValidator(FieldValidator):
 class RegionCodeValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, 'Region code', Offsets.REGION_CODE,
-                                Lengths.REGION_CODE)
+        FieldValidator.__init__(self, Field('Region code', Offsets.REGION_CODE,
+                                            Lengths.REGION_CODE))
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
@@ -204,7 +215,7 @@ class RegionCodeValidator(FieldValidator):
 
 class RomSizeCalc:
 
-    _rom_size_table = {
+    _ROM_SIZE_TABLE = {
         RomSize.SIZE_8KB.value: (8 * 1024),
         RomSize.SIZE_16KB.value: (16 * 1024),
         RomSize.SIZE_32KB.value: (32 * 1024),
@@ -220,24 +231,25 @@ class RomSizeCalc:
 
     @classmethod
     def get_virtual_size(cls, rom_buffer):
-        data = rom_buffer[Offsets.ROM_SIZE.value:(Offsets.ROM_SIZE.value + \
-            Lengths.ROM_SIZE.value)]
+        start_offs = Offsets.ROM_SIZE.value
+        end_offs = start_offs + Lengths.ROM_SIZE.value
+        data = rom_buffer[start_offs:end_offs]
         rom_size_code = int(data.hex()[1], 16)
 
-        return cls._rom_size_table[rom_size_code]
+        return cls._ROM_SIZE_TABLE[rom_size_code]
 
     @classmethod
     def get_virtual_size_from_field(cls, rom_size):
         idx = int(rom_size.hex()[1], 16)
 
-        return cls._rom_size_table[idx]
+        return cls._ROM_SIZE_TABLE[idx]
 
 
 class RomSizeValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, 'ROM size', Offsets.ROM_SIZE,
-                                Lengths.ROM_SIZE)
+        FieldValidator.__init__(self, Field('ROM size', Offsets.ROM_SIZE,
+                                            Lengths.ROM_SIZE))
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
