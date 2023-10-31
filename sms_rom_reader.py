@@ -119,25 +119,26 @@ class RomChecksumCalc:
 
     @classmethod
     def calculate(cls, rom):
-        start_offset = 0x8000
+        # first page address after the rom header
+        start_range = 0x8000
         # number of pages after header
         rem_pages = int(RomSizeCalc.get_virtual_size(rom) / cls._PAGE_SIZE) - 2
         # checksum of first two pages
-        cksum = cls._checksum(rom, 0, Offsets.TMR_SEGA.value, 0)
+        cksum = cls._checksum(rom, 0, 0, Offsets.TMR_SEGA.value)
 
         for _ in range(0, rem_pages, 1):
-            cksum = cls._checksum(rom, cksum, cls._PAGE_SIZE, start_offset)
-            start_offset += cls._PAGE_SIZE
+            cksum = cls._checksum(rom, cksum, start_range, cls._PAGE_SIZE)
+            start_range += cls._PAGE_SIZE
 
         return cksum.to_bytes(Lengths.CHECKSUM.value, byteorder='little')
 
     @classmethod
-    def _checksum(cls, buffer, cc_last, start_addr, index):
-        cs1 = (cc_last >> 8) & 0xff
-        cs2 = cc_last & 0xff
+    def _checksum(cls, buffer, last_cksum, start_range, offset):
+        cs1 = (last_cksum >> 8) & 0xff
+        cs2 = last_cksum & 0xff
         cs3 = e = ov1 = ov2 = 0
 
-        for i in range(index, start_addr + index):
+        for i in range(start_range, start_range + offset):
             e = cs2
             ov1 = e
             e += buffer[i]
@@ -151,9 +152,9 @@ class RomChecksumCalc:
             cs3 = 0
             cs1 = e
 
-        cc_last = (cs1 << 8) & 0xff00 | cs2
+        last_cksum = (cs1 << 8) & 0xff00 | cs2
 
-        return cc_last & 0xffff
+        return last_cksum & 0xffff
 
 
 class ChecksumValidator(FieldValidator):
