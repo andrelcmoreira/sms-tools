@@ -126,7 +126,7 @@ class RomChecksumCalc:
         # checksum of first two pages
         cksum = cls._checksum(rom, 0, 0, Offsets.TMR_SEGA.value)
 
-        for _ in range(0, rem_pages, 1):
+        for _ in range(0, rem_pages):
             cksum = cls._checksum(rom, cksum, start_range, cls._PAGE_SIZE)
             start_range += cls._PAGE_SIZE
 
@@ -234,9 +234,8 @@ class RomSizeCalc:
         start_offs = Offsets.ROM_SIZE.value
         end_offs = start_offs + Lengths.ROM_SIZE.value
         data = rom_buffer[start_offs:end_offs]
-        rom_size_code = int(data.hex()[1], 16)
 
-        return cls._ROM_SIZE_TABLE[rom_size_code]
+        return cls.get_virtual_size_from_field(data)
 
     @classmethod
     def get_virtual_size_from_field(cls, rom_size):
