@@ -120,7 +120,7 @@ class RomChecksumCalc:
     @classmethod
     def calculate(cls, rom):
         # first page address after the rom header
-        start_range = 0x8000
+        start_range = Offsets.ROM_SIZE.value + 1
         # number of pages after header
         rem_pages = int(RomSizeCalc.get_virtual_size(rom) / cls._PAGE_SIZE) - 2
         # checksum of first two pages
