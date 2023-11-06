@@ -284,8 +284,6 @@ def main(args):
 def parse_args():
     parser = ArgumentParser(prog=argv[0])
 
-    parser.add_argument('-c', '--check', action='store_true',
-                        help='check the ROM coherence')
     parser.add_argument('-f', '--rom-file', metavar='file', help='ROM file',
                         required=True)
 
