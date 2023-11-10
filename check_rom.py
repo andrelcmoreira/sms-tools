@@ -276,11 +276,6 @@ def check(rom_file):
             val.check(data)
 
 
-def main(args):
-    if args.check:
-        check(args.rom_file)
-
-
 def parse_args():
     parser = ArgumentParser(prog=argv[0])
 
@@ -299,4 +294,4 @@ if __name__ == "__main__":
     args = parse_args()
 
     if args:
-        main(args)
+        check(args.rom_file)
