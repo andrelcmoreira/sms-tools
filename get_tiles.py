@@ -2,11 +2,15 @@ from argparse import ArgumentParser
 from sys import argv
 
 
+# $0b305 - $0b504
 def get_assets(rom_file, output_dir):
     with open(rom_file, 'rb') as f:
         data = f.read()
 
-        pass # TODO(andrelcmoreira) implement me
+        print(hex(data[0]))
+        print(hex(data[0x11]))
+        #print('first byte:', hex(data[0xb305]))
+        #print('last byte:', hex(data[0xb504]))
 
 
 def parse_args():
