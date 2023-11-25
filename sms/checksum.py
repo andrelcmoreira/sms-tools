@@ -1,6 +1,7 @@
 from sms.constants import Offsets, Lengths
 from sms.size import SizeCalc
 
+
 class ChecksumCalc:
 
     _PAGE_SIZE = 0x4000

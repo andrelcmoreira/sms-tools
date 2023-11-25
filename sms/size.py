@@ -1,5 +1,6 @@
 from sms.constants import RomSize, Offsets, Lengths
 
+
 class SizeCalc:
 
     _ROM_SIZE_TABLE = {

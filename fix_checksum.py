@@ -9,8 +9,12 @@ def fix_checksum(rom_file):
     with open(rom_file, 'r+b') as f:
         data = f.read()
 
+        print('[*] calculating checksum...')
+        cksum = ChecksumCalc.calculate(data)
+
+        print('[*] patching rom file...')
         f.seek(Offsets.CHECKSUM.value)
-        f.write(ChecksumCalc.calculate(data))
+        f.write(cksum)
 
 
 def parse_args():
