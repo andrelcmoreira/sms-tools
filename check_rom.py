@@ -2,48 +2,15 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from colorama import Fore
 from dataclasses import dataclass
-from enum import Enum
 from sys import argv
 
-
-class Offsets(Enum):
-    TMR_SEGA = 0x7ff0
-    RESERVED_SPACE = 0x7ff8
-    CHECKSUM = 0x7ffa
-    PRODUCT_CODE = 0x7ffc
-    VERSION = 0x7ffe
-    REGION_CODE = 0x7fff
-    ROM_SIZE = 0x7fff
-
-
-class RomSize(Enum):
-    SIZE_8KB = 0xa
-    SIZE_16KB = 0xb
-    SIZE_32KB = 0xc
-    SIZE_48KB = 0xd
-    SIZE_64KB = 0xe
-    SIZE_128KB = 0xf
-    SIZE_256KB = 0x0
-    SIZE_512KB = 0x1
-    SIZE_1MB = 0x2
-
-
-class RegionCode(Enum):
-    SMS_JAPAN = 3
-    SMS_EXPORT = 4
-    GG_JAPAN = 5
-    GG_EXPORT = 6
-    GG_INTERNATIONAL = 7
-
-
-class Lengths(Enum):
-    TMR_SEGA = 8
-    RESERVED_SPACE = 2
-    CHECKSUM = 2
-    PRODUCT_CODE = 3 # 2 bytes + 1 nibble
-    VERSION = 1 # 1 nibble
-    REGION_CODE = 1 # 1 nibble
-    ROM_SIZE = 1 # 1 nibble
+from sms.checksum import ChecksumCalc
+from sms.size import SizeCalc
+from sms.constants import (
+    Lengths,
+    Offsets,
+    RegionCode,
+)
 
 
 @dataclass
@@ -113,50 +80,6 @@ class ReservedSpaceValidator(FieldValidator):
                 "the reserved space must be '0x0000', '0xffff' or '0x2020'"
 
 
-class RomChecksumCalc:
-
-    _PAGE_SIZE = 0x4000
-
-    @classmethod
-    def calculate(cls, rom):
-        # first page address after the rom header
-        start_addr = Offsets.ROM_SIZE.value + 1
-        # number of pages after header
-        rem_pages = int(RomSizeCalc.get_virtual_size(rom) / cls._PAGE_SIZE) - 2
-        # checksum of first two pages
-        cksum = cls._checksum(rom, 0, 0, Offsets.TMR_SEGA.value)
-
-        for _ in range(0, rem_pages):
-            cksum = cls._checksum(rom, cksum, start_addr, cls._PAGE_SIZE)
-            start_addr += cls._PAGE_SIZE
-
-        return cksum.to_bytes(Lengths.CHECKSUM.value, byteorder='little')
-
-    @classmethod
-    def _checksum(cls, buffer, last_cksum, start_range, offset):
-        cs1 = (last_cksum >> 8) & 0xff
-        cs2 = last_cksum & 0xff
-        cs3 = e = ov1 = ov2 = 0
-
-        for i in range(start_range, start_range + offset):
-            e = cs2
-            ov1 = e
-            e += buffer[i]
-            ov2 = e & 0xff
-
-            if ov1 > ov2:
-                cs3 = 1
-
-            cs2 = e & 0xff
-            e = cs1 + cs3
-            cs3 = 0
-            cs1 = e
-
-        last_cksum = (cs1 << 8) & 0xff00 | cs2
-
-        return last_cksum & 0xffff
-
-
 class ChecksumValidator(FieldValidator):
 
     def __init__(self):
@@ -165,7 +88,7 @@ class ChecksumValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
-        checksum = RomChecksumCalc.calculate(rom_buffer)
+        checksum = ChecksumCalc.calculate(rom_buffer)
 
         assert data == checksum, f'0x{data.hex()} != 0x{checksum.hex()}'
 
@@ -213,37 +136,6 @@ class RegionCodeValidator(FieldValidator):
             f"unknown region code '{region_code}'"
 
 
-class RomSizeCalc:
-
-    _ROM_SIZE_TABLE = {
-        RomSize.SIZE_8KB.value: (8 * 1024),
-        RomSize.SIZE_16KB.value: (16 * 1024),
-        RomSize.SIZE_32KB.value: (32 * 1024),
-        RomSize.SIZE_64KB.value: (64 * 1024),
-        RomSize.SIZE_128KB.value: (128 * 1024),
-        RomSize.SIZE_256KB.value: (256 * 1024),
-        RomSize.SIZE_1MB.value: (1024 * 1024)
-    }
-
-    @staticmethod
-    def get_real_size(rom_buffer):
-        return len(rom_buffer)
-
-    @classmethod
-    def get_virtual_size(cls, rom_buffer):
-        start_offs = Offsets.ROM_SIZE.value
-        end_offs = start_offs + Lengths.ROM_SIZE.value
-        data = rom_buffer[start_offs:end_offs]
-
-        return cls.get_virtual_size_from_field(data)
-
-    @classmethod
-    def get_virtual_size_from_field(cls, rom_size):
-        idx = int(rom_size.hex()[1], 16)
-
-        return cls._ROM_SIZE_TABLE[idx]
-
-
 class RomSizeValidator(FieldValidator):
 
     def __init__(self):
@@ -252,8 +144,8 @@ class RomSizeValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
-        real = RomSizeCalc.get_real_size(rom_buffer)
-        virtual = RomSizeCalc.get_virtual_size_from_field(data)
+        real = SizeCalc.get_real_size(rom_buffer)
+        virtual = SizeCalc.get_virtual_size_from_field(data)
 
         assert virtual == real, f'{virtual} != {real}'
 
