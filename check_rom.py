@@ -165,14 +165,10 @@ def check(rom_file):
 
         for val in validators:
             val.check(data)
-
-
-def main():
-    try:
-        check(argv[1])
-    except IndexError:
-        print(f'usage: {argv[0]} <rom_file>')
-
+    
 
 if __name__ == "__main__":
-    main()
+    if len(argv) > 1:
+        check(argv[1])
+    else:
+        print('usage: %s <rom_file>' % argv[0])
