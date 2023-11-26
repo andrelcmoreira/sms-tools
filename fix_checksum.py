@@ -1,4 +1,3 @@
-from argparse import ArgumentParser
 from sys import argv
 
 from sms.checksum import ChecksumCalc
@@ -19,31 +18,16 @@ def fix_checksum(rom_file):
         f.seek(Offsets.CHECKSUM.value)
         f.write(cksum)
         print('OK!')
-        
-        
-def parse_args():
-    parser = ArgumentParser(prog=argv[0])
-
-    parser.add_argument('-f', '--rom-file', metavar='file', help='ROM file',
-                        required=True)
-
-    # no arguments provided
-    if len(argv) == 1:
-        parser.print_help()
-        return None
-
-    return parser.parse_args()
 
 
 def main():
-    args = parse_args()
-
-    if args:
-        fix_checksum(args.rom_file)
-
-
-if __name__ == "__main__":
     try:
-        main()
+        fix_checksum(argv[1])
     except PermissionError:
         print('ERROR! permission denied')
+    except KeyError:
+        print(f'usage: {argv[0]} rom_file')
+    
+    
+if __name__ == "__main__":
+    main()
