@@ -7,16 +7,20 @@ from sms.constants import Offsets, Lengths
 
 def fix_checksum(rom_file):
     with open(rom_file, 'r+b') as f:
+        print('[*] loading rom...', end='')
         data = f.read()
+        print('OK!')
 
-        print('[*] calculating checksum...')
+        print('[*] calculating checksum...', end='')
         cksum = ChecksumCalc.calculate(data)
+        print('OK!')
 
-        print('[*] patching rom file...')
+        print('[*] patching rom...', end='')
         f.seek(Offsets.CHECKSUM.value)
         f.write(cksum)
-
-
+        print('OK!')
+        
+        
 def parse_args():
     parser = ArgumentParser(prog=argv[0])
 
@@ -39,4 +43,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except PermissionError:
+        print('ERROR! permission denied')
