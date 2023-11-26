@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from argparse import ArgumentParser
 from colorama import Fore
 from dataclasses import dataclass
 from sys import argv
@@ -168,25 +167,11 @@ def check(rom_file):
             val.check(data)
 
 
-def parse_args():
-    parser = ArgumentParser(prog=argv[0])
-
-    parser.add_argument('-f', '--rom-file', metavar='file', help='ROM file',
-                        required=True)
-
-    # no arguments provided
-    if len(argv) == 1:
-        parser.print_help()
-        return None
-
-    return parser.parse_args()
-
-
 def main():
-    args = parse_args()
-
-    if args:
-        check(args.rom_file)
+    try:
+        check(argv[1])
+    except IndexError:
+        print(f'usage: {argv[0]} <rom_file>')
 
 
 if __name__ == "__main__":
