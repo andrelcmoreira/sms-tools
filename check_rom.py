@@ -167,7 +167,7 @@ def check(rom_file):
             val.check(data)
     
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     if len(argv) > 1:
         check(argv[1])
     else:

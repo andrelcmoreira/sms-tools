@@ -4,34 +4,21 @@ from sms.checksum import ChecksumCalc
 from sms.constants import Offsets, Lengths
 
 
-def fix_checksum(rom_file):
-    try:
-        print('[*] loading rom...', end='')
+def fix_checksum(rom_path):
+    print('[*] loading rom...')
 
-        with open(rom_file, 'r+b') as f:
-            data = f.read()
-            print('OK!')
+    with open(rom_path, 'r+b') as rom_file:
+        data = rom_file.read()
 
-            print('[*] calculating checksum...', end='')
-            cksum = ChecksumCalc.calculate(data)
-            assert int.from_bytes(cksum) > 0, \
-                'fail to compute the rom checksum!'
-            print('OK!')
+        print('[*] calculating checksum...')
+        cksum = ChecksumCalc.calculate(data)
 
-            print('[*] patching rom...', end='')
-            assert len(data) > Offsets.CHECKSUM.value, \
-                'the specified rom file has an invalid size!'
-            f.seek(Offsets.CHECKSUM.value)
-            f.write(cksum)
-            print('OK!')
-            print('[*] done!')
-    except PermissionError:
-        print('ERROR: permission denied!')
-    except AssertionError as e:
-        print('ERROR: %s' % str(e))
+        print('[*] patching rom...')
+        rom_file.seek(Offsets.CHECKSUM.value)
+        rom_file.write(cksum)
 
-    
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     if len(argv) > 1:
         fix_checksum(argv[1])
     else:
