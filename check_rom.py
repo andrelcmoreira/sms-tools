@@ -57,7 +57,7 @@ class TmrSegaValidator(FieldValidator):
                                             Lengths.TMR_SEGA))
 
     @FieldValidator.show_result
-    def check(self, data, rom_buffer):
+    def check(self, data, _):
         expected = b'TMR SEGA'
 
         assert data == expected, f'{data.decode()} != {expected.decode()}'
@@ -71,7 +71,7 @@ class ReservedSpaceValidator(FieldValidator):
                                             Lengths.RESERVED_SPACE))
 
     @FieldValidator.show_result
-    def check(self, data, rom_buffer):
+    def check(self, data, _):
         expected = [b'\x00\x00', b'\xff\xff', b'\x20\x20']
 
         assert data in expected, \
@@ -99,7 +99,7 @@ class ProductCodeValidator(FieldValidator):
                                             Lengths.PRODUCT_CODE))
 
     @FieldValidator.show_result
-    def check(self, data, rom_buffer):
+    def check(self, data, _):
         code = data.hex()[0:5]
 
         assert code.isdigit(), 'the product code must be a numerical string'
@@ -112,7 +112,7 @@ class VersionValidator(FieldValidator):
                                             Lengths.VERSION))
 
     @FieldValidator.show_result
-    def check(self, data, rom_buffer):
+    def check(self, data, _):
         version = int(data.hex()[1], 16)
 
         assert 0 <= version <= 15, f"unknown version '{version}'"
@@ -125,7 +125,7 @@ class RegionCodeValidator(FieldValidator):
                                             Lengths.REGION_CODE))
 
     @FieldValidator.show_result
-    def check(self, data, rom_buffer):
+    def check(self, data, _):
         region_code = int(data.hex()[0], 16)
 
         assert RegionCode.SMS_JAPAN.value <= region_code <= \
