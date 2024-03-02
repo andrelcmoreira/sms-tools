@@ -1,7 +1,7 @@
 from sys import argv
 
 from sms.checksum import ChecksumCalc
-from sms.constants import Offsets, Lengths
+from sms.constants import Offsets
 
 
 def fix_checksum(rom_path):
@@ -22,4 +22,4 @@ if __name__ == '__main__':
     if len(argv) > 1:
         fix_checksum(argv[1])
     else:
-        print('usage: %s <rom_file>' % argv[0])
+        print(f'usage: {argv[0]} <rom_file>')

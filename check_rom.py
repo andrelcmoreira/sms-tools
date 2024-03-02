@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from colorama import Fore
 from dataclasses import dataclass
 from sys import argv
+from colorama import Fore
 
 from sms.checksum import ChecksumCalc
 from sms.size import SizeCalc
@@ -22,7 +22,7 @@ class Field:
 class FieldValidator(ABC):
 
     def __init__(self, field):
-        self._field = field
+        self.field = field
 
     @abstractmethod
     def check(self, data, rom_buffer):
@@ -31,21 +31,21 @@ class FieldValidator(ABC):
     @staticmethod
     def show_result(func):
         def wrapper(self, rom_buffer):
-            start_offs = self._field.offset.value
-            end_offs = start_offs + self._field.size.value
+            start_offs = self.field.offset.value
+            end_offs = start_offs + self.field.size.value
 
             try:
                 data = rom_buffer[start_offs:end_offs]
                 func(self, data, rom_buffer)
 
                 print('[' + Fore.GREEN + '  OK  ' + Fore.RESET + '] '
-                      + self._field.name)
+                      + self.field.name)
             except AssertionError as e:
                 print('[' + Fore.RED + ' FAIL ' + Fore.RESET + '] '
-                      + self._field.name + '...' + str(e))
+                      + self.field.name + '...' + str(e))
             except UnicodeDecodeError:
                 print('[' + Fore.RED + ' FAIL ' + Fore.RESET + '] '
-                      + self._field.name)
+                      + self.field.name)
 
         return wrapper
 
@@ -74,9 +74,8 @@ class ReservedSpaceValidator(FieldValidator):
     def check(self, data, rom_buffer):
         expected = [b'\x00\x00', b'\xff\xff', b'\x20\x20']
 
-        assert (data == expected[0]) or (data == expected[1]) \
-                or (data == expected[2]), \
-                "the reserved space must be '0x0000', '0xffff' or '0x2020'"
+        assert data in expected, \
+            "the reserved space must be '0x0000', '0xffff' or '0x2020'"
 
 
 class ChecksumValidator(FieldValidator):
@@ -116,8 +115,7 @@ class VersionValidator(FieldValidator):
     def check(self, data, rom_buffer):
         version = int(data.hex()[1], 16)
 
-        assert (version >= 0) and (version <= 15), \
-                f"unknown version '{version}'"
+        assert 0 <= version <= 15, f"unknown version '{version}'"
 
 
 class RegionCodeValidator(FieldValidator):
@@ -130,8 +128,8 @@ class RegionCodeValidator(FieldValidator):
     def check(self, data, rom_buffer):
         region_code = int(data.hex()[0], 16)
 
-        assert (region_code >= RegionCode.SMS_JAPAN.value) and \
-            (region_code <= RegionCode.GG_INTERNATIONAL.value), \
+        assert RegionCode.SMS_JAPAN.value <= region_code <= \
+            RegionCode.GG_INTERNATIONAL.value, \
             f"unknown region code '{region_code}'"
 
 
@@ -165,10 +163,10 @@ def check(rom_file):
 
         for val in validators:
             val.check(data)
-    
+
 
 if __name__ == '__main__':
     if len(argv) > 1:
         check(argv[1])
     else:
-        print('usage: %s <rom_file>' % argv[0])
+        print(f'usage: {argv[0]} <rom_file>')
