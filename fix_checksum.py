@@ -1,6 +1,6 @@
 from sys import argv
 
-from sms.checksum import ChecksumCalc
+from sms.checksum import calculate
 from sms.constants import Offsets
 
 
@@ -11,7 +11,7 @@ def fix_checksum(rom_path):
         data = rom_file.read()
 
         print('[*] calculating checksum...')
-        cksum = ChecksumCalc.calculate(data)
+        cksum = calculate(data)
 
         print('[*] patching rom...')
         rom_file.seek(Offsets.CHECKSUM.value)

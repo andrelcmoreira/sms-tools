@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from sys import argv
 from colorama import Fore
 
-from sms.checksum import ChecksumCalc
+from sms.checksum import calculate
 from sms.size import SizeCalc
 from sms.constants import (
     Lengths,
@@ -86,7 +86,7 @@ class ChecksumValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
-        checksum = ChecksumCalc.calculate(rom_buffer)
+        checksum = calculate(rom_buffer)
 
         assert data == checksum, f'0x{data.hex()} != 0x{checksum.hex()}'
 
