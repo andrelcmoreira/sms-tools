@@ -1,4 +1,4 @@
-from sms.constants import RomSize, Offsets, Lengths
+from core.constants import RomSize, Offsets, Lengths
 
 
 class SizeCalc:

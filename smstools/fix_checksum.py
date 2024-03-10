@@ -1,7 +1,7 @@
 from sys import argv
 
-from sms.checksum import calculate
-from sms.constants import Offsets
+from core.checksum import calculate
+from core.constants import Offsets
 
 
 def fix_checksum(rom_path):

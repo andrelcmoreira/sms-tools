@@ -3,9 +3,9 @@ from dataclasses import dataclass
 from sys import argv
 from colorama import Fore
 
-from sms.checksum import calculate
-from sms.size import SizeCalc
-from sms.constants import (
+from core.checksum import calculate
+from core.size import SizeCalc
+from core.constants import (
     Lengths,
     Offsets,
     RegionCode,

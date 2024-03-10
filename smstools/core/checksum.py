@@ -1,5 +1,5 @@
-from sms.constants import Offsets, Lengths
-from sms.size import SizeCalc
+from core.constants import Offsets, Lengths
+from core.size import SizeCalc
 
 
 _PAGE_SIZE = 0x4000
