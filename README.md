@@ -10,4 +10,5 @@ available tools:
 
 1. check_rom.py: check the game rom coherence
 2. fix_checksum.py: fix the game rom checksum
+3. dump_headers.py: show the headers data from game rom
 ```
