@@ -5,7 +5,7 @@ from colorama import Fore
 
 from core.checksum import calculate
 from core.size import SizeCalc
-from core.constants import (
+from core.rom_header import (
     Lengths,
     Offsets,
     RegionCode,

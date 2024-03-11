@@ -1,6 +1,8 @@
 from enum import Enum
 
+# https://www.smspower.org/Development/ROMHeader
 
+# TODO: consider the 1ff0 and 3ff0 offsets as alternative offsets to TMR_SEGA
 class Offsets(Enum):
     TMR_SEGA = 0x7ff0
     RESERVED_SPACE = 0x7ff8
