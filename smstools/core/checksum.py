@@ -1,5 +1,5 @@
-from core.constants import Offsets, Lengths
-from core.size import SizeCalc
+from core.rom_header import Offsets, Lengths
+from core.size import get_virtual_size
 
 
 _PAGE_SIZE = 0x4000
@@ -9,7 +9,7 @@ def calculate(rom):
     # first page address after the rom header
     start_addr = Offsets.ROM_SIZE.value + 1
     # number of pages after header
-    rem_pages = int(SizeCalc.get_virtual_size(rom) / _PAGE_SIZE) - 2
+    rem_pages = int(get_virtual_size(rom) / _PAGE_SIZE) - 2
     # checksum of first two pages
     cksum = _checksum(rom, 0, 0, Offsets.TMR_SEGA.value)
 

@@ -4,12 +4,8 @@ from sys import argv
 from colorama import Fore
 
 from core.checksum import calculate
-from core.size import SizeCalc
-from core.rom_header import (
-    Lengths,
-    Offsets,
-    RegionCode,
-)
+from core.rom_header import Lengths, Offsets, RegionCode
+from core.size import get_real_size, get_virtual_size_from_field
 
 
 @dataclass
@@ -141,8 +137,8 @@ class RomSizeValidator(FieldValidator):
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
-        real = SizeCalc.get_real_size(rom_buffer)
-        virtual = SizeCalc.get_virtual_size_from_field(data)
+        real = get_real_size(rom_buffer)
+        virtual = get_virtual_size_from_field(data)
 
         assert virtual == real, f'{virtual} != {real}'
 
