@@ -14,7 +14,7 @@ class Offsets(Enum):
 class Lengths(Enum):
     SDSC = 4
     VERSION = 2
-    DATE = 2
+    DATE = 4
     AUTHOR_POINTER = 2
     NAME_POINTER = 2
     DESCRIPTION_POINTER = 2
@@ -44,19 +44,32 @@ description:\t\t{self.description}
 
     @property
     def sdsc(self):
-        return 'TODO: sdsc value'
+        value = self._rom_data[Offsets.SDSC.value:Offsets.SDSC.value \
+            + Lengths.SDSC.value]
+
+        return value.decode()
 
     @property
     def version(self):
-        return 'TODO: version value'
+        value = self._rom_data[Offsets.VERSION.value:Offsets.VERSION.value \
+            + Lengths.VERSION.value]
+
+        return value
 
     @property
     def date(self):
-        return 'TODO: date value'
+        value = self._rom_data[Offsets.DATE.value:Offsets.DATE.value \
+            + Lengths.DATE.value]
+
+        day = hex(value[0]).strip('x')[2:]
+        mounth = hex(value[1]).strip('x')[2:]
+        year = hex(value[3]).strip('x')[2:] + hex(value[2]).strip('x')[2:]
+
+        return f'{day}/{mounth}/{year}'
 
     @property
     def author_pointer(self):
-        return 'TODO: author pointer value'
+        return f'TODO: author pointer value'
 
     @property
     def author(self):
