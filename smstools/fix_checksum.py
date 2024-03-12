@@ -22,4 +22,4 @@ if __name__ == '__main__':
     if len(argv) > 1:
         fix_checksum(argv[1])
     else:
-        print(f'usage: {argv[0]} <rom_file>')
+        print(f'usage: {argv[0]} <rom-file>')

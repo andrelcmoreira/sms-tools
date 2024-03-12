@@ -41,3 +41,12 @@ class Lengths(Enum):
     VERSION = 1 # 1 nibble
     REGION_CODE = 1 # 1 nibble
     ROM_SIZE = 1 # 1 nibble
+
+
+class RomHeader:
+
+    def __init__(self, rom_data):
+        self._rom_data = rom_data
+
+    def __str__(self):
+        pass
