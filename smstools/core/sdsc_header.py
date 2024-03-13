@@ -61,11 +61,7 @@ class SdscHeader(Header):
     def date(self):
         value = self.get_field(Offsets.DATE.value, Lengths.DATE.value)
 
-        day = hex(value[0]).strip('x')[2:]
-        mounth = hex(value[1]).strip('x')[2:]
-        year = hex(value[3]).strip('x')[2:] + hex(value[2]).strip('x')[2:]
-
-        return f'{day}/{mounth}/{year}'
+        return f'{value[1]:x}/{value[0]:x}/{value[3]:x}{value[2]:x}'
 
     @property
     def author_pointer(self):
