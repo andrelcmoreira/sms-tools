@@ -1,5 +1,7 @@
 from enum import Enum
 
+from core.header import Header
+
 # https://www.smspower.org/Development/SDSCHeader
 
 class Offsets(Enum):
@@ -20,46 +22,43 @@ class Lengths(Enum):
     DESCRIPTION_POINTER = 2
 
 
-class SdscHeader:
+class SdscHeader(Header):
 
     def __init__(self, rom_data):
-        self._rom_data = rom_data
+        Header.__init__(self, rom_data)
 
     def __str__(self):
         if not self.sdsc:
             return 'not available'
 
-        return f'''\
-SDSC HEADER:\n
-sdsc:\t\t\t{self.sdsc}
-version:\t\t{self.version}
-date:\t\t\t{self.date}
-author pointer:\t\t{self.author_pointer}
-author:\t\t\t{self.author}
-name pointer:\t\t{self.name_pointer}
-name:\t\t\t{self.name}
-description pointer:\t{self.description_pointer}
-description:\t\t{self.description}
-        '''
+        return (
+            'SDSC HEADER\n\n'
+            f'sdsc:\t\t\t{self.sdsc}\n'
+            f'version:\t\t{self.version}\n'
+            f'date:\t\t\t{self.date}\n'
+            f'author pointer:\t\t{self.author_pointer}\n'
+            f'author:\t\t\t{self.author}\n'
+            f'name pointer:\t\t{self.name_pointer}\n'
+            f'name:\t\t\t{self.name}\n'
+            f'description pointer:\t{self.description_pointer}\n'
+            f'description:\t\t{self.description}'
+        )
 
     @property
     def sdsc(self):
-        value = self._rom_data[Offsets.SDSC.value:Offsets.SDSC.value \
-            + Lengths.SDSC.value]
+        value = self.get_field(Offsets.SDSC.value, Lengths.SDSC.value)
 
         return value.decode()
 
     @property
     def version(self):
-        value = self._rom_data[Offsets.VERSION.value:Offsets.VERSION.value \
-            + Lengths.VERSION.value]
+        value = self.get_field(Offsets.VERSION.value, Lengths.VERSION.value)
 
         return value.hex()
 
     @property
     def date(self):
-        value = self._rom_data[Offsets.DATE.value:Offsets.DATE.value \
-            + Lengths.DATE.value]
+        value = self.get_field(Offsets.DATE.value, Lengths.DATE.value)
 
         day = hex(value[0]).strip('x')[2:]
         mounth = hex(value[1]).strip('x')[2:]
@@ -69,60 +68,39 @@ description:\t\t{self.description}
 
     @property
     def author_pointer(self):
-        value = self._rom_data[Offsets.AUTHOR_POINTER.value:Offsets.AUTHOR_POINTER.value \
-            + Lengths.AUTHOR_POINTER.value]
+        value = self.get_field(Offsets.AUTHOR_POINTER.value,
+                               Lengths.AUTHOR_POINTER.value)
 
         return '0x' + str(value.hex()[2:4]) + str(value.hex()[0:2])
 
     @property
     def author(self):
         author_addr = int(self.author_pointer, 16)
-        author = []
 
-        for byte in self._rom_data[author_addr:]:
-            if not byte:
-                break
-
-            author.append(chr(byte))
-
-        return ''.join(author)
+        return self.get_ptr_field(author_addr)
 
     @property
     def name_pointer(self):
-        value = self._rom_data[Offsets.NAME_POINTER.value:Offsets.NAME_POINTER.value \
-            + Lengths.NAME_POINTER.value]
+        value = self.get_field(Offsets.NAME_POINTER.value,
+                               Lengths.NAME_POINTER.value)
 
         return '0x' + str(value.hex()[2:4]) + str(value.hex()[0:2])
 
     @property
     def name(self):
         name_addr = int(self.name_pointer, 16)
-        name = []
 
-        for byte in self._rom_data[name_addr:]:
-            if not byte:
-                break
-
-            name.append(chr(byte))
-
-        return ''.join(name)
+        return self.get_ptr_field(name_addr)
 
     @property
     def description_pointer(self):
-        value = self._rom_data[Offsets.DESCRIPTION_POINTER.value:Offsets.DESCRIPTION_POINTER.value \
-            + Lengths.DESCRIPTION_POINTER.value]
+        value = self.get_field(Offsets.DESCRIPTION_POINTER.value,
+                               Lengths.DESCRIPTION_POINTER.value)
 
         return '0x' + str(value.hex()[2:4]) + str(value.hex()[0:2])
 
     @property
     def description(self):
         description_addr = int(self.description_pointer, 16)
-        description = []
 
-        for byte in self._rom_data[description_addr:]:
-            if not byte:
-                break
-
-            description.append(chr(byte))
-
-        return ''.join(description)
+        return self.get_ptr_field(description_addr)
