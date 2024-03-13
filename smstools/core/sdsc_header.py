@@ -89,11 +89,23 @@ description:\t\t{self.description}
 
     @property
     def name_pointer(self):
-        return 'TODO: name pointer value'
+        value = self._rom_data[Offsets.NAME_POINTER.value:Offsets.NAME_POINTER.value \
+            + Lengths.NAME_POINTER.value]
+
+        return '0x' + str(value.hex()[2:4]) + str(value.hex()[0:2])
 
     @property
     def name(self):
-        return 'TODO: name value'
+        name_addr = int(self.name_pointer, 16)
+        name = []
+
+        for byte in self._rom_data[name_addr:]:
+            if not byte:
+                break
+
+            name.append(chr(byte))
+
+        return ''.join(name)
 
     @property
     def description_pointer(self):
