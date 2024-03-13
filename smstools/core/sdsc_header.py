@@ -76,7 +76,16 @@ description:\t\t{self.description}
 
     @property
     def author(self):
-        return 'TODO: author value'
+        author_addr = int(self.author_pointer, 16)
+        author = []
+
+        for byte in self._rom_data[author_addr:]:
+            if not byte:
+                break
+
+            author.append(chr(byte))
+
+        return ''.join(author)
 
     @property
     def name_pointer(self):
