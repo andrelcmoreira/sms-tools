@@ -54,7 +54,7 @@ description:\t\t{self.description}
         value = self._rom_data[Offsets.VERSION.value:Offsets.VERSION.value \
             + Lengths.VERSION.value]
 
-        return value
+        return value.hex()
 
     @property
     def date(self):
