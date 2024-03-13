@@ -69,7 +69,10 @@ description:\t\t{self.description}
 
     @property
     def author_pointer(self):
-        return f'TODO: author pointer value'
+        value = self._rom_data[Offsets.AUTHOR_POINTER.value:Offsets.AUTHOR_POINTER.value \
+            + Lengths.AUTHOR_POINTER.value]
+
+        return '0x' + str(value.hex()[2:4]) + str(value.hex()[0:2])
 
     @property
     def author(self):
