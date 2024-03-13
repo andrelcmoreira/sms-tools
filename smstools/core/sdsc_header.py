@@ -109,8 +109,20 @@ description:\t\t{self.description}
 
     @property
     def description_pointer(self):
-        return 'TODO: description pointer value'
+        value = self._rom_data[Offsets.DESCRIPTION_POINTER.value:Offsets.DESCRIPTION_POINTER.value \
+            + Lengths.DESCRIPTION_POINTER.value]
+
+        return '0x' + str(value.hex()[2:4]) + str(value.hex()[0:2])
 
     @property
     def description(self):
-        return 'TODO: description value'
+        description_addr = int(self.description_pointer, 16)
+        description = []
+
+        for byte in self._rom_data[description_addr:]:
+            if not byte:
+                break
+
+            description.append(chr(byte))
+
+        return ''.join(description)
