@@ -1,4 +1,5 @@
 from enum import Enum
+from struct import unpack
 
 from core.header import Header
 
@@ -71,7 +72,7 @@ class SdscHeader(Header):
         value = self.get_field(Offsets.AUTHOR_POINTER.value,
                                Lengths.AUTHOR_POINTER.value)
 
-        return '0x' + str(value.hex()[2:4]) + str(value.hex()[0:2])
+        return hex(unpack('<H', value)[0])
 
     @property
     def author(self):
@@ -84,7 +85,7 @@ class SdscHeader(Header):
         value = self.get_field(Offsets.NAME_POINTER.value,
                                Lengths.NAME_POINTER.value)
 
-        return '0x' + str(value.hex()[2:4]) + str(value.hex()[0:2])
+        return hex(unpack('<H', value)[0])
 
     @property
     def name(self):
@@ -97,7 +98,7 @@ class SdscHeader(Header):
         value = self.get_field(Offsets.DESCRIPTION_POINTER.value,
                                Lengths.DESCRIPTION_POINTER.value)
 
-        return '0x' + str(value.hex()[2:4]) + str(value.hex()[0:2])
+        return hex(unpack('<H', value)[0])
 
     @property
     def description(self):
