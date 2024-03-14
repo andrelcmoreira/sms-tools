@@ -52,7 +52,7 @@ class RomHeader(Header):
 
     def __str__(self):
         if not self.tmr_sega:
-            return 'not available'
+            return 'ROM HEADER\n\nnot available'
 
         return (
             'ROM HEADER\n\n'
@@ -78,16 +78,38 @@ class RomHeader(Header):
 
     @property
     def product_code(self):
-        pass
+        value = self.get_field(Offsets.PRODUCT_CODE.value,
+                               Lengths.PRODUCT_CODE.value)
+
+        return f'0x{value.hex()[0:3]}'
 
     @property
     def version(self):
-        pass
+        value = self.get_field(Offsets.VERSION.value, Lengths.VERSION.value)
+        version = value.hex()[1]
+
+        return f'0x{version}'
 
     @property
     def region_code(self):
-        pass
+        value = self.get_field(Offsets.REGION_CODE.value,
+                               Lengths.REGION_CODE.value)
+        region_code = int(value.hex()[0], 16)
+        region_code_str = RegionCode(region_code) \
+            .name \
+            .replace('_', ' ') \
+            .lower()
+
+        return f'0x{region_code:x} ({region_code_str})'
 
     @property
     def rom_size(self):
-        pass
+        value = self.get_field(Offsets.ROM_SIZE.value,
+                               Lengths.ROM_SIZE.value)
+        rom_size = int(value.hex()[1], 16)
+        rom_size_str = RomSize(rom_size) \
+            .name \
+            .split('_')[1] \
+            .lower()
+
+        return f'0x{rom_size:x} ({rom_size_str})'
