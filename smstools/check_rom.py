@@ -4,7 +4,7 @@ from sys import argv
 from colorama import Fore
 
 from core.checksum import calculate
-from core.rom_header import Lengths, Offsets, RegionCode
+from core.rom_header import Lengths, Offsets, RegionCode, RomHeader
 from core.size import get_real_size, get_virtual_size_from_field
 
 
@@ -27,11 +27,11 @@ class FieldValidator(ABC):
     @staticmethod
     def show_result(func):
         def wrapper(self, rom_buffer):
-            start_offs = self.field.offset.value
-            end_offs = start_offs + self.field.size.value
+            hdr = RomHeader(rom_buffer)
 
             try:
-                data = rom_buffer[start_offs:end_offs]
+                data = hdr.get_field(self.field.offset.value,
+                                     self.field.size.value)
                 func(self, data, rom_buffer)
 
                 print('[' + Fore.GREEN + '  OK  ' + Fore.RESET + '] '
