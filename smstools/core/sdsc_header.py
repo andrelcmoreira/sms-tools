@@ -47,31 +47,31 @@ class SdscHeader(Header):
 
     @property
     def sdsc(self):
-        value = self.get_field(Offsets.SDSC.value, Lengths.SDSC.value)
+        sdsc = self.get_field(Offsets.SDSC.value, Lengths.SDSC.value)
 
-        if value in (b'\xff\xff\xff\xff', b'\x00\x00\x09\x00'):
+        if sdsc in (b'\xff\xff\xff\xff', b'\x00\x00\x09\x00'):
             return ''
 
-        return value.decode()
+        return sdsc.decode()
 
     @property
     def version(self):
-        value = self.get_field(Offsets.VERSION.value, Lengths.VERSION.value)
+        version = self.get_field(Offsets.VERSION.value, Lengths.VERSION.value)
 
-        return value.hex()
+        return version.hex()
 
     @property
     def date(self):
-        value = self.get_field(Offsets.DATE.value, Lengths.DATE.value)
+        date = self.get_field(Offsets.DATE.value, Lengths.DATE.value)
 
-        return f'{value[1]:x}/{value[0]:x}/{value[3]:x}{value[2]:x}'
+        return f'{date[1]:x}/{date[0]:x}/{date[3]:x}{date[2]:x}'
 
     @property
     def author_pointer(self):
-        value = self.get_field(Offsets.AUTHOR_POINTER.value,
-                               Lengths.AUTHOR_POINTER.value)
+        author_ptr = self.get_field(Offsets.AUTHOR_POINTER.value,
+                                    Lengths.AUTHOR_POINTER.value)
 
-        return hex(unpack('<H', value)[0])
+        return hex(unpack('<H', author_ptr)[0])
 
     @property
     def author(self):
@@ -81,10 +81,10 @@ class SdscHeader(Header):
 
     @property
     def name_pointer(self):
-        value = self.get_field(Offsets.NAME_POINTER.value,
-                               Lengths.NAME_POINTER.value)
+        name_ptr = self.get_field(Offsets.NAME_POINTER.value,
+                                  Lengths.NAME_POINTER.value)
 
-        return hex(unpack('<H', value)[0])
+        return hex(unpack('<H', name_ptr)[0])
 
     @property
     def name(self):
@@ -94,13 +94,13 @@ class SdscHeader(Header):
 
     @property
     def description_pointer(self):
-        value = self.get_field(Offsets.DESCRIPTION_POINTER.value,
-                               Lengths.DESCRIPTION_POINTER.value)
+        desc_ptr = self.get_field(Offsets.DESCRIPTION_POINTER.value,
+                                  Lengths.DESCRIPTION_POINTER.value)
 
-        return hex(unpack('<H', value)[0])
+        return hex(unpack('<H', desc_ptr)[0])
 
     @property
     def description(self):
-        description_addr = int(self.description_pointer, 16)
+        desc_addr = int(self.description_pointer, 16)
 
-        return self.get_str_field(description_addr)
+        return self.get_str_field(desc_addr)

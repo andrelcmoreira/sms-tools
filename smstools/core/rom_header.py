@@ -66,22 +66,23 @@ class RomHeader(Header):
 
     @property
     def tmr_sega(self):
-        value = self.get_field(Offsets.TMR_SEGA.value, Lengths.TMR_SEGA.value)
+        tmr_sega = self.get_field(Offsets.TMR_SEGA.value,
+                                  Lengths.TMR_SEGA.value)
 
-        return value.decode()
+        return tmr_sega.decode()
 
     @property
     def checksum(self):
-        value = self.get_field(Offsets.CHECKSUM.value, Lengths.CHECKSUM.value)
+        cksum = self.get_field(Offsets.CHECKSUM.value, Lengths.CHECKSUM.value)
 
-        return f'0x{value.hex()}'
+        return f'0x{cksum.hex()}'
 
     @property
     def product_code(self):
-        value = self.get_field(Offsets.PRODUCT_CODE.value,
-                               Lengths.PRODUCT_CODE.value)
+        prod_code = self.get_field(Offsets.PRODUCT_CODE.value,
+                                   Lengths.PRODUCT_CODE.value)
 
-        return f'0x{value.hex()[0:3]}'
+        return f'0x{prod_code.hex()[0:3]}'
 
     @property
     def version(self):
