@@ -72,7 +72,9 @@ class RomHeader(Header):
 
     @property
     def checksum(self):
-        pass
+        value = self.get_field(Offsets.CHECKSUM.value, Lengths.CHECKSUM.value)
+
+        return f'0x{value.hex()}'
 
     @property
     def product_code(self):
