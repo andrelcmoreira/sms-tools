@@ -5,23 +5,22 @@ from core.rom_header import RomHeader
 
 
 def dump_headers(header_type, rom_file):
-    header = None
-
     with open(rom_file, 'rb') as f:
         data = f.read()
 
         match header_type:
             case 'rom-header':
-                header = RomHeader(data)
+                print(RomHeader(data))
             case 'sdsc':
-                header = SdscHeader(data)
-
-    if header:
-        print(header)
+                print(SdscHeader(data))
+            case 'all':
+                print(RomHeader(data))
+                print('')
+                print(SdscHeader(data))
 
 
 if __name__ == '__main__':
-    if len(argv) > 2:
+    if len(argv) == 3:
         dump_headers(argv[1], argv[2])
     else:
-        print(f'usage: {argv[0]} <rom-header|sdsc> <rom-file>')
+        print(f'usage: {argv[0]} <rom-header|sdsc|all> <rom-file>')
