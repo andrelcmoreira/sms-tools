@@ -82,7 +82,7 @@ class RomHeader(Header):
         prod_code = self.get_field(Offsets.PRODUCT_CODE.value,
                                    Lengths.PRODUCT_CODE.value)
 
-        return f'0x{prod_code.hex()[0:3]}'
+        return f'0x{prod_code.hex()[0:5]}'
 
     @property
     def version(self):
