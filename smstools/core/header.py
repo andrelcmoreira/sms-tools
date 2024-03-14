@@ -9,7 +9,7 @@ class Header:
 
         return value
 
-    def get_ptr_field(self, offset):
+    def get_str_field(self, offset):
         field = []
 
         for byte in self._rom_data[offset:]:

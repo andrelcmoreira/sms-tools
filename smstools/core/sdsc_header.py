@@ -77,7 +77,7 @@ class SdscHeader(Header):
     def author(self):
         author_addr = int(self.author_pointer, 16)
 
-        return self.get_ptr_field(author_addr)
+        return self.get_str_field(author_addr)
 
     @property
     def name_pointer(self):
@@ -90,7 +90,7 @@ class SdscHeader(Header):
     def name(self):
         name_addr = int(self.name_pointer, 16)
 
-        return self.get_ptr_field(name_addr)
+        return self.get_str_field(name_addr)
 
     @property
     def description_pointer(self):
@@ -103,4 +103,4 @@ class SdscHeader(Header):
     def description(self):
         description_addr = int(self.description_pointer, 16)
 
-        return self.get_ptr_field(description_addr)
+        return self.get_str_field(description_addr)
