@@ -1,9 +1,10 @@
+# based on https://www.smspower.org/Development/SDSCHeader
+
 from enum import Enum
 from struct import unpack
 
 from core.header import Header
 
-# https://www.smspower.org/Development/SDSCHeader
 
 class Offsets(Enum):
     SDSC = 0x7fe0

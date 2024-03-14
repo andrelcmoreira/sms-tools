@@ -20,7 +20,6 @@ def dump_headers(header_type, rom_file):
 
 
 if __name__ == '__main__':
-    if len(argv) == 3:
-        dump_headers(argv[1], argv[2])
-    else:
-        print(f'usage: {argv[0]} <rom-header|sdsc|all> <rom-file>')
+    match len(argv):
+        case 3: dump_headers(argv[1], argv[2])
+        case _: print(f'usage: {argv[0]} <rom-header|sdsc|all> <rom-file>')

@@ -1,8 +1,8 @@
+# based on https://www.smspower.org/Development/ROMHeader
+
 from enum import Enum
 
 from core.header import Header
-
-# https://www.smspower.org/Development/ROMHeader
 
 # TODO: consider the 1ff0 and 3ff0 offsets as alternative offsets to TMR_SEGA
 class Offsets(Enum):

@@ -19,7 +19,6 @@ def fix_checksum(rom_path):
 
 
 if __name__ == '__main__':
-    if len(argv) > 1:
-        fix_checksum(argv[1])
-    else:
-        print(f'usage: {argv[0]} <rom-file>')
+    match len(argv):
+        case 2: fix_checksum(argv[1])
+        case _: print(f'usage: {argv[0]} <rom-file>')

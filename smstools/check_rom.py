@@ -162,7 +162,6 @@ def check(rom_file):
 
 
 if __name__ == '__main__':
-    if len(argv) > 1:
-        check(argv[1])
-    else:
-        print(f'usage: {argv[0]} <rom-file>')
+    match len(argv):
+        case 2: check(argv[1])
+        case _: print(f'usage: {argv[0]} <rom-file>')
