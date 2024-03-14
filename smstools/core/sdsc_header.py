@@ -30,7 +30,7 @@ class SdscHeader(Header):
 
     def __str__(self):
         if not self.sdsc:
-            return 'not available'
+            return 'SDSC HEADER\n\nnot available'
 
         return (
             'SDSC HEADER\n\n'
@@ -48,6 +48,9 @@ class SdscHeader(Header):
     @property
     def sdsc(self):
         value = self.get_field(Offsets.SDSC.value, Lengths.SDSC.value)
+
+        if value in (b'\xff\xff\xff\xff', b'\x00\x00\x09\x00'):
+            return ''
 
         return value.decode()
 
