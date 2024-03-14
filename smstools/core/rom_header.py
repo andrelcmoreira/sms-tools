@@ -1,5 +1,7 @@
 from enum import Enum
 
+from core.header import Header
+
 # https://www.smspower.org/Development/ROMHeader
 
 # TODO: consider the 1ff0 and 3ff0 offsets as alternative offsets to TMR_SEGA
@@ -43,10 +45,47 @@ class Lengths(Enum):
     ROM_SIZE = 1 # 1 nibble
 
 
-class RomHeader:
+class RomHeader(Header):
 
     def __init__(self, rom_data):
-        self._rom_data = rom_data
+        Header.__init__(self, rom_data)
 
     def __str__(self):
+        if not self.tmr_sega:
+            return 'not available'
+
+        return (
+            'ROM HEADER\n\n'
+            f'tmr sega:\t{self.tmr_sega}\n'
+            f'ckecksum:\t{self.checksum}\n'
+            f'product code:\t{self.product_code}\n'
+            f'version:\t{self.version}\n'
+            f'region code:\t{self.region_code}\n'
+            f'rom size:\t{self.rom_size}'
+        )
+
+    @property
+    def tmr_sega(self):
+        value = self.get_field(Offsets.TMR_SEGA.value, Lengths.TMR_SEGA.value)
+
+        return value.decode()
+
+    @property
+    def checksum(self):
+        pass
+
+    @property
+    def product_code(self):
+        pass
+
+    @property
+    def version(self):
+        pass
+
+    @property
+    def region_code(self):
+        pass
+
+    @property
+    def rom_size(self):
         pass
