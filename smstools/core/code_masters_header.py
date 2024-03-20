@@ -14,6 +14,7 @@ class Offsets(Enum):
     HOUR = 0x7fe4
     MINUTE = 0x7fe5
     CHECKSUM = 0x7fe6
+    # TODO: $7fe8	Word	$10000 - checksum
 
 
 class Lengths(Enum):
@@ -31,6 +32,8 @@ class CodeMastersHeader(Header):
     def __init__(self, rom_data):
         Header.__init__(self, rom_data)
 
+        self._sdsc = SdscHeader(rom_data)
+
     def __str__(self):
         if not self.header_exists():
             return 'CODEMASTERS HEADER\n\nnot available'
@@ -39,22 +42,20 @@ class CodeMastersHeader(Header):
             'CODEMASTERS HEADER\n\n'
             f'number of banks:\t{self.banks_number}\n'
             f'timestamp:\t\t{self.hour}:{self.minute} '
-            f'{self.month}/{self.day}/{self.year}\n'
+            f'{self.day}/{self.month}/{self.year}\n'
             f'checksum:\t\t{self.checksum}'
         )
 
     def header_exists(self):
-        #if SdscHeader(self._rom_data).has_sdsc_header():
-        #    return False
-
-        return True
+        return (not self._sdsc.header_exists()) and \
+                (not self.banks_number in ['0', '255'])
 
     @property
     def banks_number(self):
         number = self.get_field(Offsets.BANKS_NUMBER.value,
                                 Lengths.BANKS_NUMBER.value)
 
-        return f'{number[0]:x}'
+        return f'{number[0]:d}'
 
     @property
     def day(self):
