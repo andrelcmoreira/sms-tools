@@ -1,5 +1,4 @@
 # based on https://www.smspower.org/Development/SDSCHeader
-
 from enum import Enum
 from struct import unpack
 
@@ -30,7 +29,7 @@ class SdscHeader(Header):
         Header.__init__(self, rom_data)
 
     def __str__(self):
-        if not self.sdsc:
+        if not self.header_exists():
             return 'SDSC HEADER\n\nnot available'
 
         return (
@@ -46,14 +45,19 @@ class SdscHeader(Header):
             f'description:\t\t{self.description}'
         )
 
+    def header_exists(self):
+        return len(self.sdsc) > 0
+
     @property
     def sdsc(self):
-        sdsc = self.get_field(Offsets.SDSC.value, Lengths.SDSC.value)
+        try:
+            sdsc = self.get_field(Offsets.SDSC.value, Lengths.SDSC.value)
+            if sdsc in (b'\xff\xff\xff\xff', b'\x00\x00\x09\x00'):
+                return ''
 
-        if sdsc in (b'\xff\xff\xff\xff', b'\x00\x00\x09\x00'):
+            return sdsc.decode()
+        except UnicodeDecodeError:
             return ''
-
-        return sdsc.decode()
 
     @property
     def version(self):

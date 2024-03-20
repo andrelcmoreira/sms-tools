@@ -1,5 +1,4 @@
 # based on https://www.smspower.org/Development/ROMHeader
-
 from enum import Enum
 
 from core.header import Header
@@ -51,7 +50,7 @@ class RomHeader(Header):
         Header.__init__(self, rom_data)
 
     def __str__(self):
-        if not self.tmr_sega:
+        if not self.header_exists():
             return 'ROM HEADER\n\nnot available'
 
         return (
@@ -63,6 +62,9 @@ class RomHeader(Header):
             f'region code:\t{self.region_code}\n'
             f'rom size:\t{self.rom_size}'
         )
+
+    def header_exists(self):
+        return len(self.tmr_sega) > 0
 
     @property
     def tmr_sega(self):

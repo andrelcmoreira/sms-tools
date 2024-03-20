@@ -1,5 +1,6 @@
+from abc import abstractmethod, ABC
 
-class Header:
+class Header(ABC):
 
     def __init__(self, rom_data):
         self._rom_data = rom_data
@@ -19,3 +20,7 @@ class Header:
             field.append(chr(byte))
 
         return ''.join(field)
+
+    @abstractmethod
+    def header_exists(self):
+        pass
