@@ -52,7 +52,7 @@ class SdscHeader(Header):
     def sdsc(self):
         try:
             sdsc = self.get_field(Offsets.SDSC.value, Lengths.SDSC.value)
-            if sdsc in (b'\xff\xff\xff\xff', b'\x00\x00\x09\x00'):
+            if sdsc in (b'\xff\xff\xff\xff', b'\x00\x00\x00\x00'):
                 return ''
 
             return sdsc.decode()
