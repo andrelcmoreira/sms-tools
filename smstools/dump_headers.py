@@ -1,8 +1,8 @@
 from sys import argv
 
-from core.sdsc_header import SdscHeader
-from core.rom_header import RomHeader
 from core.code_masters_header import CodeMastersHeader
+from core.rom_header import RomHeader
+from core.sdsc_header import SdscHeader
 
 
 def dump_headers(header_type, rom_file):
@@ -10,16 +10,16 @@ def dump_headers(header_type, rom_file):
         data = f.read()
 
         match header_type:
+            case 'all':
+                print(RomHeader(data), '\n')
+                print(SdscHeader(data), '\n')
+                print(CodeMastersHeader(data))
             case 'rom-header':
                 print(RomHeader(data))
             case 'codemasters':
                 print(CodeMastersHeader(data))
             case 'sdsc':
                 print(SdscHeader(data))
-            case 'all':
-                print(RomHeader(data), '\n')
-                print(SdscHeader(data), '\n')
-                print(CodeMastersHeader(data))
 
 
 if __name__ == '__main__':

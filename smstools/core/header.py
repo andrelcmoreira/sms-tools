@@ -5,6 +5,10 @@ class Header(ABC):
     def __init__(self, rom_data):
         self._rom_data = rom_data
 
+    @abstractmethod
+    def header_exists(self):
+        pass
+
     def get_field(self, offset, length):
         value = self._rom_data[offset:offset + length]
 
@@ -20,7 +24,3 @@ class Header(ABC):
             field.append(chr(byte))
 
         return ''.join(field)
-
-    @abstractmethod
-    def header_exists(self):
-        pass

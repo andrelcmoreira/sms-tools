@@ -14,7 +14,7 @@ class Offsets(Enum):
     HOUR = 0x7fe4
     MINUTE = 0x7fe5
     CHECKSUM = 0x7fe6
-    # TODO: $7fe8	Word	$10000 - checksum
+    CHECKSUM_WORD = 0x7fe8 # TODO: give a meaningful name for this field
 
 
 class Lengths(Enum):
@@ -25,6 +25,7 @@ class Lengths(Enum):
     HOUR = 1
     MINUTE = 1
     CHECKSUM = 2
+    CHECKSUM_WORD = 2
 
 
 class CodeMastersHeader(Header):
@@ -34,6 +35,10 @@ class CodeMastersHeader(Header):
 
         self._sdsc = SdscHeader(rom_data)
 
+    def header_exists(self):
+        return (not self._sdsc.header_exists()) and \
+                (not self.banks_number in ('0', '255'))
+
     def __str__(self):
         if not self.header_exists():
             return 'CODEMASTERS HEADER\n\nnot available'
@@ -42,13 +47,10 @@ class CodeMastersHeader(Header):
             'CODEMASTERS HEADER\n\n'
             f'number of banks:\t{self.banks_number}\n'
             f'timestamp:\t\t{self.hour}:{self.minute} '
-            f'{self.day}/{self.month}/{self.year}\n'
-            f'checksum:\t\t{self.checksum}'
+            f'{self.day}/{self.month}/{self.year} (hh:mm dd/mm/yy)\n'
+            f'checksum:\t\t{self.checksum}\n'
+            f'checksum word:\t\t{self.checksum_word}\n'
         )
-
-    def header_exists(self):
-        return (not self._sdsc.header_exists()) and \
-                (not self.banks_number in ['0', '255'])
 
     @property
     def banks_number(self):
@@ -96,5 +98,12 @@ class CodeMastersHeader(Header):
     def checksum(self):
         checksum = self.get_field(Offsets.CHECKSUM.value,
                                   Lengths.CHECKSUM.value)
+
+        return hex(unpack('<H', checksum)[0])
+
+    @property
+    def checksum_word(self):
+        checksum = self.get_field(Offsets.CHECKSUM_WORD.value,
+                                  Lengths.CHECKSUM_WORD.value)
 
         return hex(unpack('<H', checksum)[0])
