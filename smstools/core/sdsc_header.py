@@ -28,6 +28,9 @@ class SdscHeader(Header):
     def __init__(self, rom_data):
         Header.__init__(self, rom_data)
 
+    def header_exists(self):
+        return len(self.sdsc) > 0
+
     def __str__(self):
         if not self.header_exists():
             return 'SDSC HEADER\n\nnot available'
@@ -36,7 +39,7 @@ class SdscHeader(Header):
             'SDSC HEADER\n\n'
             f'sdsc:\t\t\t{self.sdsc}\n'
             f'version:\t\t{self.version}\n'
-            f'date:\t\t\t{self.date}\n'
+            f'date:\t\t\t{self.date} (dd/mm/yy)\n'
             f'author pointer:\t\t{self.author_pointer}\n'
             f'author:\t\t\t{self.author}\n'
             f'name pointer:\t\t{self.name_pointer}\n'
@@ -44,9 +47,6 @@ class SdscHeader(Header):
             f'description pointer:\t{self.description_pointer}\n'
             f'description:\t\t{self.description}'
         )
-
-    def header_exists(self):
-        return len(self.sdsc) > 0
 
     @property
     def sdsc(self):
