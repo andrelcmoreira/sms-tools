@@ -1,5 +1,6 @@
 from abc import abstractmethod, ABC
 
+
 class Header(ABC):
 
     def __init__(self, rom_data):
@@ -15,12 +16,12 @@ class Header(ABC):
         return value
 
     def get_str_field(self, offset):
-        field = []
+        field = ''
 
         for byte in self._rom_data[offset:]:
-            if not byte:
+            if not byte: # end of string
                 break
 
-            field.append(chr(byte))
+            field += chr(byte)
 
-        return ''.join(field)
+        return field
