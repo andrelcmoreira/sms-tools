@@ -29,7 +29,7 @@ class SdscHeader(Header):
         Header.__init__(self, rom_data)
 
     def header_exists(self):
-        return len(self.sdsc) > 0
+        return self.sdsc == 'SDSC'
 
     def __str__(self):
         if not self.header_exists():
@@ -51,7 +51,8 @@ class SdscHeader(Header):
     @property
     def sdsc(self):
         try:
-            sdsc = self.get_field(Offsets.SDSC.value, Lengths.SDSC.value)
+            sdsc = self.get_field(Offsets.SDSC.value,
+                                  Lengths.SDSC.value)
             if sdsc in (b'\xff\xff\xff\xff', b'\x00\x00\x00\x00'):
                 return ''
 
@@ -61,13 +62,15 @@ class SdscHeader(Header):
 
     @property
     def version(self):
-        version = self.get_field(Offsets.VERSION.value, Lengths.VERSION.value)
+        version = self.get_field(Offsets.VERSION.value,
+                                 Lengths.VERSION.value)
 
-        return version.hex()
+        return f'{version[0]:x}.{version[1]:02x}'
 
     @property
     def date(self):
-        date = self.get_field(Offsets.DATE.value, Lengths.DATE.value)
+        date = self.get_field(Offsets.DATE.value,
+                              Lengths.DATE.value)
 
         return f'{date[0]:x}/{date[1]:x}/{date[3]:x}{date[2]:x}'
 
