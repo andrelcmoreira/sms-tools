@@ -71,7 +71,7 @@ class CodeMastersHeader(Header):
         month = self.get_field(Offsets.MONTH.value,
                                Lengths.MONTH.value)
 
-        return f'{month[0]:x}'
+        return f'{month[0]:02x}'
 
     @property
     def year(self):
@@ -85,14 +85,14 @@ class CodeMastersHeader(Header):
         hour = self.get_field(Offsets.HOUR.value,
                               Lengths.HOUR.value)
 
-        return f'{hour[0]:x}'
+        return f'{hour[0]:02x}'
 
     @property
     def minute(self):
         minute = self.get_field(Offsets.MINUTE.value,
                                 Lengths.MINUTE.value)
 
-        return f'{minute[0]:x}'
+        return f'{minute[0]:02x}'
 
     @property
     def checksum(self):
