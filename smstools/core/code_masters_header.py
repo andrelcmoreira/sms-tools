@@ -64,7 +64,7 @@ class CodeMastersHeader(Header):
         day = self.get_field(Offsets.DAY.value,
                              Lengths.DAY.value)
 
-        return f'{day[0]:x}'
+        return f'{day[0]:02x}'
 
     @property
     def month(self):
