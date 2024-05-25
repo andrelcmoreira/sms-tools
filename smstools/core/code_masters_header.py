@@ -31,7 +31,7 @@ class Lengths(Enum):
 class CodeMastersHeader(Header):
 
     def __init__(self, rom_data):
-        Header.__init__(self, rom_data)
+        super().__init__(rom_data)
 
         self._sdsc = SdscHeader(rom_data)
 
@@ -49,7 +49,7 @@ class CodeMastersHeader(Header):
             f'timestamp:\t\t{self.hour}:{self.minute} '
             f'{self.day}/{self.month}/{self.year} (hh:mm dd/mm/yy)\n'
             f'checksum:\t\t{self.checksum}\n'
-            f'checksum word:\t\t{self.checksum_word}\n'
+            f'checksum word:\t\t{self.checksum_word}'
         )
 
     @property

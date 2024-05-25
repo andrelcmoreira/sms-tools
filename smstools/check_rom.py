@@ -49,8 +49,7 @@ class FieldValidator(ABC):
 class TmrSegaValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, Field('TMR SEGA', Offsets.TMR_SEGA,
-                                            Lengths.TMR_SEGA))
+        super().__init__(Field('TMR SEGA', Offsets.TMR_SEGA, Lengths.TMR_SEGA))
 
     @FieldValidator.show_result
     def check(self, data, _):
@@ -62,9 +61,8 @@ class TmrSegaValidator(FieldValidator):
 class ReservedSpaceValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, Field('Reserved space',
-                                            Offsets.RESERVED_SPACE,
-                                            Lengths.RESERVED_SPACE))
+        super().__init__(Field('Reserved space', Offsets.RESERVED_SPACE,
+                               Lengths.RESERVED_SPACE))
 
     @FieldValidator.show_result
     def check(self, data, _):
@@ -77,8 +75,7 @@ class ReservedSpaceValidator(FieldValidator):
 class ChecksumValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, Field('Checksum', Offsets.CHECKSUM,
-                                            Lengths.CHECKSUM))
+        super().__init__(Field('Checksum', Offsets.CHECKSUM, Lengths.CHECKSUM))
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):
@@ -90,9 +87,8 @@ class ChecksumValidator(FieldValidator):
 class ProductCodeValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, Field('Product code',
-                                            Offsets.PRODUCT_CODE,
-                                            Lengths.PRODUCT_CODE))
+        super().__init__(Field('Product code', Offsets.PRODUCT_CODE,
+                               Lengths.PRODUCT_CODE))
 
     @FieldValidator.show_result
     def check(self, data, _):
@@ -104,8 +100,7 @@ class ProductCodeValidator(FieldValidator):
 class VersionValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, Field('Version', Offsets.VERSION,
-                                            Lengths.VERSION))
+        super().__init__(Field('Version', Offsets.VERSION, Lengths.VERSION))
 
     @FieldValidator.show_result
     def check(self, data, _):
@@ -117,8 +112,8 @@ class VersionValidator(FieldValidator):
 class RegionCodeValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, Field('Region code', Offsets.REGION_CODE,
-                                            Lengths.REGION_CODE))
+        super().__init__(Field('Region code', Offsets.REGION_CODE,
+                               Lengths.REGION_CODE))
 
     @FieldValidator.show_result
     def check(self, data, _):
@@ -132,8 +127,7 @@ class RegionCodeValidator(FieldValidator):
 class RomSizeValidator(FieldValidator):
 
     def __init__(self):
-        FieldValidator.__init__(self, Field('ROM size', Offsets.ROM_SIZE,
-                                            Lengths.ROM_SIZE))
+        super().__init__(Field('ROM size', Offsets.ROM_SIZE, Lengths.ROM_SIZE))
 
     @FieldValidator.show_result
     def check(self, data, rom_buffer):

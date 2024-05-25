@@ -46,9 +46,6 @@ class Lengths(Enum):
 
 class RomHeader(Header):
 
-    def __init__(self, rom_data):
-        Header.__init__(self, rom_data)
-
     def __str__(self):
         if not self.header_exists():
             return 'ROM HEADER\n\nnot available'

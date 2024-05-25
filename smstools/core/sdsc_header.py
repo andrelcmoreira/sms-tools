@@ -25,9 +25,6 @@ class Lengths(Enum):
 
 class SdscHeader(Header):
 
-    def __init__(self, rom_data):
-        Header.__init__(self, rom_data)
-
     def header_exists(self):
         return self.sdsc == 'SDSC'
 
