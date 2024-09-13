@@ -5,7 +5,7 @@ from core.rom_header import RomHeader
 from core.sdsc_header import SdscHeader
 
 
-def dump_headers(header_type, rom_file):
+def dump_headers(header_type: str, rom_file: str):
     with open(rom_file, 'rb') as f:
         data = f.read()
 

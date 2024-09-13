@@ -46,7 +46,7 @@ class Lengths(Enum):
 
 class RomHeader(Header):
 
-    def __str__(self):
+    def __str__(self) -> str:
         if not self.header_exists():
             return 'ROM HEADER\n\nnot available'
 
@@ -60,38 +60,38 @@ class RomHeader(Header):
             f'rom size:\t{self.rom_size}'
         )
 
-    def header_exists(self):
+    def header_exists(self) -> bool:
         return len(self.tmr_sega) > 0
 
     @property
-    def tmr_sega(self):
+    def tmr_sega(self) -> str:
         tmr_sega = self.get_field(Offsets.TMR_SEGA.value,
                                   Lengths.TMR_SEGA.value)
 
         return tmr_sega.decode()
 
     @property
-    def checksum(self):
+    def checksum(self) -> str:
         cksum = self.get_field(Offsets.CHECKSUM.value, Lengths.CHECKSUM.value)
 
         return f'0x{cksum.hex()}'
 
     @property
-    def product_code(self):
+    def product_code(self) -> str:
         prod_code = self.get_field(Offsets.PRODUCT_CODE.value,
                                    Lengths.PRODUCT_CODE.value)
 
         return f'0x{prod_code.hex()[0:5]}'
 
     @property
-    def version(self):
+    def version(self) -> str:
         value = self.get_field(Offsets.VERSION.value, Lengths.VERSION.value)
         version = value.hex()[1]
 
         return f'0x{version}'
 
     @property
-    def region_code(self):
+    def region_code(self) -> str:
         value = self.get_field(Offsets.REGION_CODE.value,
                                Lengths.REGION_CODE.value)
         region_code = int(value.hex()[0], 16)
@@ -103,7 +103,7 @@ class RomHeader(Header):
         return f'0x{region_code:x} ({region_code_str})'
 
     @property
-    def rom_size(self):
+    def rom_size(self) -> str:
         value = self.get_field(Offsets.ROM_SIZE.value,
                                Lengths.ROM_SIZE.value)
         rom_size = int(value.hex()[1], 16)

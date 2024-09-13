@@ -12,11 +12,11 @@ _ROM_SIZE_TABLE = {
 }
 
 
-def get_real_size(rom_buffer):
+def get_real_size(rom_buffer: bytes) -> int:
     return len(rom_buffer)
 
 
-def get_virtual_size(rom_buffer):
+def get_virtual_size(rom_buffer: bytes) -> int:
     start_offs = Offsets.ROM_SIZE.value
     end_offs = start_offs + Lengths.ROM_SIZE.value
     data = rom_buffer[start_offs:end_offs]
@@ -24,7 +24,7 @@ def get_virtual_size(rom_buffer):
     return get_virtual_size_from_field(data)
 
 
-def get_virtual_size_from_field(rom_size):
+def get_virtual_size_from_field(rom_size: bytes) -> int:
     idx = int(rom_size.hex()[1], 16)
 
     return _ROM_SIZE_TABLE[idx]

@@ -25,10 +25,10 @@ class Lengths(Enum):
 
 class SdscHeader(Header):
 
-    def header_exists(self):
+    def header_exists(self) -> bool:
         return self.sdsc == 'SDSC'
 
-    def __str__(self):
+    def __str__(self) -> str:
         if not self.header_exists():
             return 'SDSC HEADER\n\nnot available'
 
@@ -46,7 +46,7 @@ class SdscHeader(Header):
         )
 
     @property
-    def sdsc(self):
+    def sdsc(self) -> str:
         try:
             sdsc = self.get_field(Offsets.SDSC.value,
                                   Lengths.SDSC.value)
@@ -58,54 +58,54 @@ class SdscHeader(Header):
             return ''
 
     @property
-    def version(self):
+    def version(self) -> str:
         version = self.get_field(Offsets.VERSION.value,
                                  Lengths.VERSION.value)
 
         return f'{version[0]:x}.{version[1]:02x}'
 
     @property
-    def date(self):
+    def date(self) -> str:
         date = self.get_field(Offsets.DATE.value,
                               Lengths.DATE.value)
 
         return f'{date[0]:02x}/{date[1]:02x}/{date[3]:x}{date[2]:x}'
 
     @property
-    def author_pointer(self):
+    def author_pointer(self) -> str:
         author_ptr = self.get_field(Offsets.AUTHOR_POINTER.value,
                                     Lengths.AUTHOR_POINTER.value)
 
         return hex(unpack('<H', author_ptr)[0])
 
     @property
-    def author(self):
+    def author(self) -> str:
         author_addr = int(self.author_pointer, 16)
 
         return self.get_str_field(author_addr)
 
     @property
-    def name_pointer(self):
+    def name_pointer(self) -> str:
         name_ptr = self.get_field(Offsets.NAME_POINTER.value,
                                   Lengths.NAME_POINTER.value)
 
         return hex(unpack('<H', name_ptr)[0])
 
     @property
-    def name(self):
+    def name(self) -> str:
         name_addr = int(self.name_pointer, 16)
 
         return self.get_str_field(name_addr)
 
     @property
-    def description_pointer(self):
+    def description_pointer(self) -> str:
         desc_ptr = self.get_field(Offsets.DESCRIPTION_POINTER.value,
                                   Lengths.DESCRIPTION_POINTER.value)
 
         return hex(unpack('<H', desc_ptr)[0])
 
     @property
-    def description(self):
+    def description(self) -> str:
         desc_addr = int(self.description_pointer, 16)
 
         return self.get_str_field(desc_addr)

@@ -5,7 +5,7 @@ from core.size import get_virtual_size
 _PAGE_SIZE = 0x4000
 
 
-def calculate(rom):
+def calculate(rom: bytes) -> bytes:
     # first page address after the rom header
     start_addr = Offsets.ROM_SIZE.value + 1
     # number of pages after header
@@ -20,7 +20,12 @@ def calculate(rom):
     return cksum.to_bytes(Lengths.CHECKSUM.value, byteorder='little')
 
 
-def _checksum(buffer, last_cksum, start_range, offset):
+def _checksum(
+    buffer: bytes,
+    last_cksum: int,
+    start_range: int,
+    offset: int
+) -> int:
     cs1 = (last_cksum >> 8) & 0xff
     cs2 = last_cksum & 0xff
     cs3 = e = ov1 = ov2 = 0

@@ -30,16 +30,16 @@ class Lengths(Enum):
 
 class CodeMastersHeader(Header):
 
-    def __init__(self, rom_data):
+    def __init__(self, rom_data: bytes):
         super().__init__(rom_data)
 
         self._sdsc = SdscHeader(rom_data)
 
-    def header_exists(self):
+    def header_exists(self) -> bool:
         return (not self._sdsc.header_exists()) and \
                 (not self.banks_number in ('0', '255'))
 
-    def __str__(self):
+    def __str__(self) -> str:
         if not self.header_exists():
             return 'CODEMASTERS HEADER\n\nnot available'
 
@@ -53,56 +53,56 @@ class CodeMastersHeader(Header):
         )
 
     @property
-    def banks_number(self):
+    def banks_number(self) -> str:
         number = self.get_field(Offsets.BANKS_NUMBER.value,
                                 Lengths.BANKS_NUMBER.value)
 
         return f'{number[0]:d}'
 
     @property
-    def day(self):
+    def day(self) -> str:
         day = self.get_field(Offsets.DAY.value,
                              Lengths.DAY.value)
 
         return f'{day[0]:02x}'
 
     @property
-    def month(self):
+    def month(self) -> str:
         month = self.get_field(Offsets.MONTH.value,
                                Lengths.MONTH.value)
 
         return f'{month[0]:02x}'
 
     @property
-    def year(self):
+    def year(self) -> str:
         year = self.get_field(Offsets.YEAR.value,
                               Lengths.YEAR.value)
 
         return f'{year[0]:x}'
 
     @property
-    def hour(self):
+    def hour(self) -> str:
         hour = self.get_field(Offsets.HOUR.value,
                               Lengths.HOUR.value)
 
         return f'{hour[0]:02x}'
 
     @property
-    def minute(self):
+    def minute(self) -> str:
         minute = self.get_field(Offsets.MINUTE.value,
                                 Lengths.MINUTE.value)
 
         return f'{minute[0]:02x}'
 
     @property
-    def checksum(self):
+    def checksum(self) -> str:
         checksum = self.get_field(Offsets.CHECKSUM.value,
                                   Lengths.CHECKSUM.value)
 
         return hex(unpack('<H', checksum)[0])
 
     @property
-    def checksum_word(self):
+    def checksum_word(self) -> str:
         checksum = self.get_field(Offsets.CHECKSUM_WORD.value,
                                   Lengths.CHECKSUM_WORD.value)
 

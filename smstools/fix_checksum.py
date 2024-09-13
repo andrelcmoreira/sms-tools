@@ -4,7 +4,7 @@ from core.checksum import calculate
 from core.rom_header import Offsets
 
 
-def fix_checksum(rom_path):
+def fix_checksum(rom_path: str):
     print('[*] loading rom...')
 
     with open(rom_path, 'r+b') as rom_file:
