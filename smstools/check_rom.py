@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from sys import argv
+from typing import Callable
 from colorama import Fore
 
 from core.checksum import calculate
@@ -25,7 +26,7 @@ class FieldValidator(ABC):
         pass
 
     @staticmethod
-    def show_result(func):
+    def show_result(func: Callable) -> Callable:
         def wrapper(self, rom_buffer: bytes):
             hdr = RomHeader(rom_buffer)
 
