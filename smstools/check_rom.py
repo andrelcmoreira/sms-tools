@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from sys import argv
 from typing import Callable
+
 from colorama import Fore
 
 from core.checksum import calculate
@@ -22,12 +23,12 @@ class FieldValidator(ABC):
         self.field = field
 
     @abstractmethod
-    def check(self, data: bytes, rom_buffer: bytes):
+    def check(self, data: bytes, rom_buffer: bytes) -> None:
         pass
 
     @staticmethod
     def show_result(func: Callable) -> Callable:
-        def wrapper(self, rom_buffer: bytes):
+        def wrapper(self, rom_buffer: bytes) -> None:
             hdr = RomHeader(rom_buffer)
 
             try:
@@ -53,7 +54,7 @@ class TmrSegaValidator(FieldValidator):
         super().__init__(Field('TMR SEGA', Offsets.TMR_SEGA, Lengths.TMR_SEGA))
 
     @FieldValidator.show_result
-    def check(self, data: bytes, _):
+    def check(self, data: bytes, _) -> None:
         expected = b'TMR SEGA'
 
         assert data == expected, f'{data.decode()} != {expected.decode()}'
@@ -66,7 +67,7 @@ class ReservedSpaceValidator(FieldValidator):
                                Lengths.RESERVED_SPACE))
 
     @FieldValidator.show_result
-    def check(self, data: bytes, _):
+    def check(self, data: bytes, _) -> None:
         expected = [b'\x00\x00', b'\xff\xff', b'\x20\x20']
 
         assert data in expected, \
@@ -79,7 +80,7 @@ class ChecksumValidator(FieldValidator):
         super().__init__(Field('Checksum', Offsets.CHECKSUM, Lengths.CHECKSUM))
 
     @FieldValidator.show_result
-    def check(self, data: bytes, rom_buffer: bytes):
+    def check(self, data: bytes, rom_buffer: bytes) -> None:
         checksum = calculate(rom_buffer)
 
         assert data == checksum, f'0x{data.hex()} != 0x{checksum.hex()}'
@@ -92,7 +93,7 @@ class ProductCodeValidator(FieldValidator):
                                Lengths.PRODUCT_CODE))
 
     @FieldValidator.show_result
-    def check(self, data: bytes, _):
+    def check(self, data: bytes, _) -> None:
         code = data.hex()[0:5]
 
         assert code.isdigit(), 'the product code must be a numerical string'
@@ -104,7 +105,7 @@ class VersionValidator(FieldValidator):
         super().__init__(Field('Version', Offsets.VERSION, Lengths.VERSION))
 
     @FieldValidator.show_result
-    def check(self, data: bytes, _):
+    def check(self, data: bytes, _) -> None:
         version = int(data.hex()[1], 16)
 
         assert 0 <= version <= 15, f"unknown version '{version}'"
@@ -117,7 +118,7 @@ class RegionCodeValidator(FieldValidator):
                                Lengths.REGION_CODE))
 
     @FieldValidator.show_result
-    def check(self, data: bytes, _):
+    def check(self, data: bytes, _) -> None:
         region_code = int(data.hex()[0], 16)
 
         assert RegionCode.SMS_JAPAN.value <= region_code <= \
@@ -131,14 +132,14 @@ class RomSizeValidator(FieldValidator):
         super().__init__(Field('ROM size', Offsets.ROM_SIZE, Lengths.ROM_SIZE))
 
     @FieldValidator.show_result
-    def check(self, data: bytes, rom_buffer: bytes):
+    def check(self, data: bytes, rom_buffer: bytes) -> None:
         real = get_real_size(rom_buffer)
         virtual = get_virtual_size_from_field(data)
 
         assert virtual == real, f'{virtual} != {real}'
 
 
-def check(rom_file: str):
+def check(rom_file: str) -> None:
     validators = [
         TmrSegaValidator(),
         ReservedSpaceValidator(),
