@@ -3,6 +3,8 @@ from abc import abstractmethod, ABC
 
 class Header(ABC):
 
+    _NOT_AVAILABLE_INFO = 'N/A'
+
     def __init__(self, rom_data: bytes):
         self._rom_data = rom_data
 
@@ -24,4 +26,4 @@ class Header(ABC):
 
             field += chr(byte)
 
-        return field
+        return field if field else self._NOT_AVAILABLE_INFO

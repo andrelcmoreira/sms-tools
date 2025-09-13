@@ -22,8 +22,13 @@ def dump_headers(header_type: str, rom_file: str) -> None:
                 print(SdscHeader(data))
 
 
+def main() -> None:
+    if len(argv) != 3:
+        print(f'usage: {argv[0]} <rom-header|codemasters|sdsc|all> <rom-file>')
+        return
+
+    dump_headers(argv[1], argv[2])
+
+
 if __name__ == '__main__':
-    match len(argv):
-        case 3: dump_headers(argv[1], argv[2])
-        case _: print(
-            f'usage: {argv[0]} <rom-header|codemasters|sdsc|all> <rom-file>')
+    main()

@@ -30,7 +30,7 @@ class SdscHeader(Header):
 
     def __str__(self) -> str:
         if not self.header_exists():
-            return 'SDSC HEADER\n\nnot available'
+            return f'SDSC HEADER\n\n{self._NOT_AVAILABLE_INFO}'
 
         return (
             'SDSC HEADER\n\n'

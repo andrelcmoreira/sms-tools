@@ -41,7 +41,7 @@ class CodeMastersHeader(Header):
 
     def __str__(self) -> str:
         if not self.header_exists():
-            return 'CODEMASTERS HEADER\n\nnot available'
+            return f'CODEMASTERS HEADER\n\n{self._NOT_AVAILABLE_INFO}'
 
         return (
             'CODEMASTERS HEADER\n\n'
