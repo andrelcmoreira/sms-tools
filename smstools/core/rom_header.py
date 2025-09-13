@@ -47,12 +47,14 @@ class Lengths(Enum):
 
 class RomHeader(Header):
 
+    _HEADER_NAME = 'ROM HEADER'
+
     def __str__(self) -> str:
         if not self.header_exists():
-            return 'ROM HEADER\n\nnot available'
+            return f'{self._HEADER_NAME}\n\n{self._NOT_AVAILABLE_INFO}'
 
         return (
-            'ROM HEADER\n\n'
+            f'{self._HEADER_NAME}\n\n'
             f'tmr sega:\t{self.tmr_sega}\n'
             f'ckecksum:\t{self.checksum}\n'
             f'product code:\t{self.product_code}\n'

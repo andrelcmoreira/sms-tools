@@ -30,6 +30,8 @@ class Lengths(Enum):
 
 class CodeMastersHeader(Header):
 
+    _HEADER_NAME = 'CODEMASTERS HEADER'
+
     def __init__(self, rom_data: bytes):
         super().__init__(rom_data)
 
@@ -41,10 +43,10 @@ class CodeMastersHeader(Header):
 
     def __str__(self) -> str:
         if not self.header_exists():
-            return f'CODEMASTERS HEADER\n\n{self._NOT_AVAILABLE_INFO}'
+            return f'{self._HEADER_NAME}\n\n{self._NOT_AVAILABLE_INFO}'
 
         return (
-            'CODEMASTERS HEADER\n\n'
+            f'{self._HEADER_NAME}\n\n'
             f'number of banks:\t{self.banks_number}\n'
             f'timestamp:\t\t{self.hour}:{self.minute} '
             f'{self.day}/{self.month}/{self.year} (hh:mm dd/mm/yy)\n'

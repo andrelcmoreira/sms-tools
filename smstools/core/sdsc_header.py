@@ -25,15 +25,17 @@ class Lengths(Enum):
 
 class SdscHeader(Header):
 
+    _HEADER_NAME = 'SDSC'
+
     def header_exists(self) -> bool:
-        return self.sdsc == 'SDSC'
+        return self.sdsc == self._HEADER_NAME
 
     def __str__(self) -> str:
         if not self.header_exists():
-            return f'SDSC HEADER\n\n{self._NOT_AVAILABLE_INFO}'
+            return f'{self._HEADER_NAME} HEADER\n\n{self._NOT_AVAILABLE_INFO}'
 
         return (
-            'SDSC HEADER\n\n'
+            f'{self._HEADER_NAME} HEADER\n\n'
             f'sdsc:\t\t\t{self.sdsc}\n'
             f'version:\t\t{self.version}\n'
             f'date:\t\t\t{self.date} (dd/mm/yy)\n'

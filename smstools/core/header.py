@@ -13,9 +13,7 @@ class Header(ABC):
         pass
 
     def get_field(self, offset: int, length: int) -> bytes:
-        value = self._rom_data[offset:offset + length]
-
-        return value
+        return self._rom_data[offset:offset + length]
 
     def get_str_field(self, offset: int) -> str:
         field = ''
