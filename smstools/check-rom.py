@@ -36,14 +36,11 @@ class FieldValidator(ABC):
                                      self.field.size.value)
                 func(self, data, rom_buffer)
 
-                print('[' + Fore.GREEN + '  OK  ' + Fore.RESET + '] '
-                      + self.field.name)
+                print(f'[{Fore.GREEN}  OK  {Fore.RESET}] {self.field.name}')
             except AssertionError as e:
-                print('[' + Fore.RED + ' FAIL ' + Fore.RESET + '] '
-                      + self.field.name + '...' + str(e))
+                print(f'[{Fore.RED} FAIL {Fore.RESET}] {self.field.name}...{e}')
             except UnicodeDecodeError:
-                print('[' + Fore.RED + ' FAIL ' + Fore.RESET + '] '
-                      + self.field.name)
+                print(f'[{Fore.RED} FAIL {Fore.RESET}] {self.field.name}')
 
         return wrapper
 
@@ -157,7 +154,13 @@ def check(rom_file: str) -> None:
             val.check(data)
 
 
+def main() -> None:
+    if len(argv) != 2:
+        print(f'usage: {argv[0]} <rom-file>')
+        return
+
+    check(argv[1])
+
+
 if __name__ == '__main__':
-    match len(argv):
-        case 2: check(argv[1])
-        case _: print(f'usage: {argv[0]} <rom-file>')
+    main()
