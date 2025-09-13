@@ -18,7 +18,13 @@ def fix_checksum(rom_path: str) -> None:
         rom_file.write(cksum)
 
 
+def main() -> None:
+    if len(argv) != 2:
+        print(f'usage: {argv[0]} <rom-file>')
+        return
+
+    fix_checksum(argv[1])
+
+
 if __name__ == '__main__':
-    match len(argv):
-        case 2: fix_checksum(argv[1])
-        case _: print(f'usage: {argv[0]} <rom-file>')
+    main()
